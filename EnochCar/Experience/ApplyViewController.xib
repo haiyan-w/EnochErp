@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ApplyViewController">
+            <connections>
+                <outlet property="areaBox" destination="ENc-Sa-k3k" id="p1r-Na-Vpe"/>
+                <outlet property="cellphoneBox" destination="0fC-CX-8Nj" id="B0o-sC-vZj"/>
+                <outlet property="commentBox" destination="Z4m-YY-CVe" id="CcD-QS-5ih"/>
+                <outlet property="companyNameBox" destination="1Gd-gI-KSm" id="00Y-d6-jdE"/>
+                <outlet property="nameBox" destination="e00-F8-Qo3" id="nhg-uV-rY6"/>
+                <outlet property="topConst" destination="cbf-BU-ZpH" id="76t-Gd-W6d"/>
+                <outlet property="turnOverBox" destination="ik0-AJ-5jx" id="XVe-9a-3cO"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e00-F8-Qo3" customClass="ComplexBox">
+                    <rect key="frame" x="20" y="112" width="374" height="36"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="36" id="MQ8-Ah-Ua7"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1Gd-gI-KSm" customClass="ComplexBox">
+                    <rect key="frame" x="20" y="208" width="374" height="36"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ENc-Sa-k3k" customClass="ComplexBox">
+                    <rect key="frame" x="20" y="256" width="374" height="36"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ik0-AJ-5jx" customClass="ComplexBox">
+                    <rect key="frame" x="20" y="304" width="374" height="36"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0fC-CX-8Nj" customClass="ComplexBox">
+                    <rect key="frame" x="20" y="160" width="374" height="36"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z4m-YY-CVe" customClass="CommonTextView">
+                    <rect key="frame" x="20" y="352" width="374" height="144"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="144" id="X3s-yr-T3j"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="Q5M-cg-NOt"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="e00-F8-Qo3" secondAttribute="trailing" constant="20" id="0Oz-Pf-lYQ"/>
+                <constraint firstItem="ENc-Sa-k3k" firstAttribute="height" secondItem="1Gd-gI-KSm" secondAttribute="height" id="0g8-Ud-JWS"/>
+                <constraint firstItem="1Gd-gI-KSm" firstAttribute="top" secondItem="0fC-CX-8Nj" secondAttribute="bottom" constant="12" id="0x9-9h-oom"/>
+                <constraint firstItem="0fC-CX-8Nj" firstAttribute="top" secondItem="e00-F8-Qo3" secondAttribute="bottom" constant="12" id="3I1-cv-NRo"/>
+                <constraint firstItem="ENc-Sa-k3k" firstAttribute="leading" secondItem="1Gd-gI-KSm" secondAttribute="leading" id="6fK-i8-tGa"/>
+                <constraint firstItem="ik0-AJ-5jx" firstAttribute="leading" secondItem="ENc-Sa-k3k" secondAttribute="leading" id="7xj-5s-u7h"/>
+                <constraint firstItem="ik0-AJ-5jx" firstAttribute="height" secondItem="e00-F8-Qo3" secondAttribute="height" id="CT3-jV-gHT"/>
+                <constraint firstItem="Z4m-YY-CVe" firstAttribute="top" secondItem="ik0-AJ-5jx" secondAttribute="bottom" constant="12" id="E6n-CZ-5mZ"/>
+                <constraint firstItem="ENc-Sa-k3k" firstAttribute="top" secondItem="1Gd-gI-KSm" secondAttribute="bottom" constant="12" id="Jke-b6-TTR"/>
+                <constraint firstItem="Z4m-YY-CVe" firstAttribute="leading" secondItem="ik0-AJ-5jx" secondAttribute="leading" id="OIc-wr-GCR"/>
+                <constraint firstItem="1Gd-gI-KSm" firstAttribute="trailing" secondItem="0fC-CX-8Nj" secondAttribute="trailing" id="OX6-vP-x81"/>
+                <constraint firstItem="e00-F8-Qo3" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" constant="20" id="Pte-e3-iyJ"/>
+                <constraint firstItem="ik0-AJ-5jx" firstAttribute="trailing" secondItem="ENc-Sa-k3k" secondAttribute="trailing" id="RfQ-LA-Mhy"/>
+                <constraint firstItem="1Gd-gI-KSm" firstAttribute="leading" secondItem="0fC-CX-8Nj" secondAttribute="leading" id="SuS-IH-fvc"/>
+                <constraint firstItem="Z4m-YY-CVe" firstAttribute="trailing" secondItem="ik0-AJ-5jx" secondAttribute="trailing" id="V9H-ul-iIV"/>
+                <constraint firstItem="ENc-Sa-k3k" firstAttribute="trailing" secondItem="1Gd-gI-KSm" secondAttribute="trailing" id="Vsq-nO-dpC"/>
+                <constraint firstItem="ik0-AJ-5jx" firstAttribute="top" secondItem="ENc-Sa-k3k" secondAttribute="bottom" constant="12" id="Y8x-rQ-eoO"/>
+                <constraint firstItem="e00-F8-Qo3" firstAttribute="top" secondItem="Q5M-cg-NOt" secondAttribute="top" constant="68" id="cbf-BU-ZpH"/>
+                <constraint firstItem="0fC-CX-8Nj" firstAttribute="leading" secondItem="e00-F8-Qo3" secondAttribute="leading" id="krs-Yl-Clh"/>
+                <constraint firstItem="0fC-CX-8Nj" firstAttribute="height" secondItem="e00-F8-Qo3" secondAttribute="height" id="nJT-j1-ik2"/>
+                <constraint firstItem="0fC-CX-8Nj" firstAttribute="trailing" secondItem="e00-F8-Qo3" secondAttribute="trailing" id="omz-zw-k6l"/>
+                <constraint firstItem="1Gd-gI-KSm" firstAttribute="height" secondItem="e00-F8-Qo3" secondAttribute="height" id="uVR-wc-JAC"/>
+            </constraints>
+            <point key="canvasLocation" x="137.68115942028987" y="96.428571428571431"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
