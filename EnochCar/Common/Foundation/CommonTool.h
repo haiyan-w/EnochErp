@@ -52,6 +52,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 +(CGFloat)topbarH;
 
++ (UIImage *)imageWithImageSimple:( UIImage *)image scaledToRect:(CGRect)newRect;
+
++ (UIImage *)cropImage:(UIImage *)image toRect:(CGRect)rect;
+
++ (BOOL)validateFloatNumber:(NSString*)number;
+
++(NSDictionary *)getErrorInfo:(NSError *_Nonnull)error;
 @end
 
 NS_ASSUME_NONNULL_END

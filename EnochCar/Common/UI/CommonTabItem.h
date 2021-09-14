@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, CommonTabItemStyle){
     CommonTabItemStyleImage  = 0,
     CommonTabItemStyleText  = 1,
+    CommonTabItemStyleAttrText  = 2,
 };
 
 
@@ -20,12 +21,17 @@ typedef NS_ENUM(NSInteger, CommonTabItemStyle){
 @property(nonatomic,readwrite,strong)NSString * selectedImageName;
 @property(nonatomic,readwrite,strong)NSString * title;
 @property(nonatomic,readwrite,strong)NSString * selectedTitle;
+@property(nonatomic,readwrite,strong)NSAttributedString * attrTitle;
+@property(nonatomic,readwrite,strong)NSAttributedString * selectedAttrTitle;
 
 @property(nonatomic,readwrite,assign)NSInteger tag;
 
+
 - (instancetype)initWithImagename:(NSString *)imagename selectedImage:(NSString *)selectedImagename;
 - (instancetype)initWithTitle:(NSString *)title;
-//- (instancetype)initWithTitle:(NSString *)title imagename:(NSString *)imagename selectedImage:(NSString *)selectedImagename;
+- (instancetype)initWithAttrText:(NSAttributedString *)attrText;
+- (instancetype)initWithAttrText:(NSAttributedString *)attrText selectedAttr:(NSAttributedString*)selectedAttrText;
+
 -(CommonTabItemStyle)style;
 @end
 

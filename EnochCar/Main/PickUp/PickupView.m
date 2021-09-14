@@ -230,7 +230,17 @@
         };
         [_centerView addSubview:_vinBox];
         
-        _typeBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_vinBox.frame.origin.x, (_vinBox.frame.origin.y+_vinBox.frame.size.height + space), _vinBox.bounds.size.width, _vinBox.bounds.size.height) mode:ComplexBoxSelect];
+        _modelBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_vinBox.frame.origin.x, (_vinBox.frame.origin.y+_vinBox.frame.size.height + space), _vinBox.bounds.size.width, _vinBox.bounds.size.height) mode:ComplexBoxSelect];
+//        _modelBox.placeHolder = @"车型选择";
+        _modelBox.placeHolder = @"车品牌";
+        _modelBox.delegate = self;
+        _modelBox.tag = TAG_MODEL;
+        _modelBox.selectBlock = ^{
+            [weakself selectModel];
+        };
+        [_centerView addSubview:_modelBox];
+        
+        _typeBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_modelBox.frame.origin.x, (_modelBox.frame.origin.y+_modelBox.frame.size.height + space), (self.bounds.size.width - 2*_modelBox.frame.origin.x), _modelBox.frame.size.height) mode:ComplexBoxSelect];
         _typeBox.placeHolder = @"车型类型选择";
         _typeBox.delegate = self;
         _typeBox.tag = TAG_TYPE;
@@ -239,17 +249,8 @@
             [weakself selectVehicleType];
         };
         [_centerView addSubview:_typeBox];
-        
-        _modelBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_typeBox.frame.origin.x, (_typeBox.frame.origin.y+_typeBox.frame.size.height + space), (self.bounds.size.width - 2*_typeBox.frame.origin.x), _typeBox.frame.size.height) mode:ComplexBoxSelect];
-        _modelBox.placeHolder = @"车型选择";
-        _modelBox.delegate = self;
-        _modelBox.tag = TAG_MODEL;
-        _modelBox.selectBlock = ^{
-            [weakself selectModel];
-        };
-        [_centerView addSubview:_modelBox];
 
-        _customTypeBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_modelBox.frame.origin.x, (_modelBox.frame.origin.y+_modelBox.frame.size.height + space), (self.bounds.size.width - 2*_modelBox.frame.origin.x), _modelBox.frame.size.height) mode:ComplexBoxSelect];
+        _customTypeBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_typeBox.frame.origin.x, (_typeBox.frame.origin.y+_typeBox.frame.size.height + space), (self.bounds.size.width - 2*_typeBox.frame.origin.x), _typeBox.frame.size.height) mode:ComplexBoxSelect];
         _customTypeBox.placeHolder = @"客户类型选择";
         _customTypeBox.delegate = self;
         _customTypeBox.tag = TAG_CUSTOMTYPE;
@@ -258,12 +259,12 @@
         };
         [_centerView addSubview:_customTypeBox];
 
-        _extandView = [[UIView alloc] initWithFrame:CGRectMake(left, (_centerView.frame.origin.y + _centerView.bounds.size.height + space), (self.bounds.size.width - 2*left), 66)];
+        _extandView = [[UIView alloc] initWithFrame:CGRectMake(0, (_centerView.frame.origin.y + _centerView.bounds.size.height + 2*space), (self.bounds.size.width - 2*left), 58)];
         [self addSubview:_extandView];
         
         CommonTabItem * item1 = [[CommonTabItem alloc] initWithImagename:@"addvehicle_unsel" selectedImage:@"addvehicle_sel"];
         CommonTabItem * item2 = [[CommonTabItem alloc] initWithImagename:@"addimage_unsel" selectedImage:@"addimage_sel"];
-        _tabbar = [[CommonTabView alloc] initWithFrame:CGRectMake(0, 0, 140, 56) target:self];
+        _tabbar = [[CommonTabView alloc] initWithFrame:CGRectMake(0, 0, 224, 58) target:self];
         [_tabbar setItems:@[item1,item2]];
         [_tabbar setIndex:0];
         [_extandView addSubview:_tabbar];
@@ -454,7 +455,7 @@
     return _curVehicle;
 }
 
--(NSMutableDictionary *)curSevice
+-(NSMutableDictionary *)curSevice 
 {
     if (!_curSevice) {
         _curSevice = [NSMutableDictionary dictionary];
@@ -773,6 +774,12 @@
         [self.curVehicle setValue:[NSArray arrayWithObject:vehicleSpec] forKey:@"vehicleSpec"];
     }
     
+    //扫描行驶证结果
+    [self.curVehicle setValue:[data objectForKey:@"driverLicenceFirstUrls"] forKey:@"driverLicenceFirstUrls"];
+    [self.curVehicle setValue:[data objectForKey:@"engineNumber"] forKey:@"engineNumber"];
+    [self.curVehicle setValue:[data objectForKey:@"purchasingDate"] forKey:@"purchasingDate"];
+//    [parm setValue:[data objectForKey:@"engineNumber"] forKey:@"address"];
+   
     [self queryInfoWithPlateNo:plateNo];
 }
 
@@ -936,7 +943,6 @@
     brandCtrl.delegate = self;
     [self.navCtrl addChildViewController:brandCtrl];
     [self.navCtrl.view addSubview:brandCtrl.view];
-    
 }
 
 -(void)queryVehicleModel
@@ -1101,7 +1107,7 @@
     if (!array) {
         array = [NSArray array];
     }
-    MaintanceAndAccessoryViewController * maintanceCtrl = [[MaintanceAndAccessoryViewController alloc] initWithData:array];
+    MaintanceAndAccessoryViewController * maintanceCtrl = [[MaintanceAndAccessoryViewController alloc] initWithData:array goods:[NSArray array]];
     maintanceCtrl.delegate = self;
     [self.navCtrl pushViewController:maintanceCtrl animated:YES];
 }
@@ -1539,7 +1545,7 @@
     }];
 }
 
--(void)createServicesuccess:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
+-(void)createServiceWith:(NSDictionary * )advisor success:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
                     failure:(nullable void (^)(NSURLSessionDataTask * _Nullable task, NSError *error))failure
 {
     __weak PickupView * weakself = self;
@@ -1550,7 +1556,7 @@
         NSDictionary * customer = [NSDictionary dictionaryWithObject:[owner objectForKey:@"id"] forKey:@"id"];
         [self.curSevice setValue:customer forKey:@"customer"];
     }
-    NSDictionary * advisor = [NSDictionary dictionaryWithObject:[NSNumber numberWithInteger:[NetWorkAPIManager defaultManager].userID] forKey:@"id"];
+//    NSDictionary * advisor = [NSDictionary dictionaryWithObject:[NSNumber numberWithInteger:[NetWorkAPIManager defaultManager].userID] forKey:@"id"];
     [self.curSevice setValue:advisor forKey:@"advisor"];
     [self.curSevice setValue:@"" forKey:@"settlementMethod"];//必需
     NSInteger mileage = [_milesTF.text integerValue];
@@ -1726,9 +1732,8 @@
 
 -(void)save:(NSArray *)maintenances
 {
-    
     [self.curSevice setObject:[NSMutableArray arrayWithArray:maintenances] forKey:@"maintenances"];
- 
+    [self showHint:@"保存成功"];
 }
 
 - (NSString *)currentDateStr{

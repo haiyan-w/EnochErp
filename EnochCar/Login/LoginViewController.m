@@ -15,7 +15,9 @@
 #import "LineProgressView.h"
 #import "ExperienceViewController.h"
 #import "UIView+Hint.h"
-//#import "AppDelegate.h"
+#import "FirstModifyPasswordViewController.h"
+
+
 
 @interface LoginViewController ()<UITextFieldDelegate>
 @property(nonatomic,readwrite,strong)ComplexBox * nameText;
@@ -134,6 +136,7 @@
     [_selectBtn setImage:[UIImage imageNamed:@"login_unselect"] forState:UIControlStateNormal];
     [_selectBtn setImage:[UIImage imageNamed:@"login_select"] forState:UIControlStateSelected];
     [_selectBtn addTarget:self action:@selector(agree) forControlEvents:UIControlEventTouchUpInside];
+    _selectBtn.selected = YES;
     [bottomView addSubview:_selectBtn];
     
     _agreementBtn = [[UIButton alloc] initWithFrame:CGRectMake(bottomLab.frame.origin.x+bottomLab.frame.size.width/2, bottomLab.frame.origin.y, bottomLab.frame.size.width/2, bottomLab.frame.size.height/2)];
@@ -148,6 +151,26 @@
 
     UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(taponbg:)];
     [self.view addGestureRecognizer:tap];
+    
+    //获取上一次登录的账号密码,自动登录
+    NSString * account = [[NSUserDefaults standardUserDefaults] objectForKey:USERDEFAULTS_ACCOUNT];
+    NSString * password = [[NSUserDefaults standardUserDefaults] objectForKey:USERDEFAULTS_PASSWORD];
+    if (account) {
+        [_nameText setText:account];
+        if (password) {
+            [_passwordText setText:password];
+            if ([self check]) {
+                [self login];
+            }
+        }
+    }
+}
+
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear: animated];
+ 
 }
 
 -(void)taponbg:(UIGestureRecognizer *)gesture
@@ -187,6 +210,12 @@
     return  YES;
 }
 
+-(void)saveAccountAndPwd
+{
+    [[NSUserDefaults standardUserDefaults] setObject:[_nameText getText] forKey:USERDEFAULTS_ACCOUNT];
+    [[NSUserDefaults standardUserDefaults] setObject:[_passwordText getText] forKey:USERDEFAULTS_PASSWORD];
+}
+
 -(BOOL)check
 {
     self.name = [self.nameText getText];
@@ -210,29 +239,35 @@
 
 -(void)loginBtnClicked
 {
+    [self resign];
+    
     if (!self.isNetworkOn) {
         [self.view showHint:[NSString stringWithFormat:@"%@",TEXT_NETWORKOFF_HINT]];
         return;
     }
-    
     if ([self check]) {
-        
-        __weak LoginViewController * weakself = self;
-        
-        NetWorkAPIManager * manager = [NetWorkAPIManager defaultManager];
-
-        [manager loginWithUsername:self.name Password:self.password success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            
-            [self queryUserInfo];
-      
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            //错误提示
-            NSString * info = [error.userInfo objectForKey:@"body"];
-            NSDictionary * dic = [self dictionaryWithJsonString:info];
-            NSDictionary * msgDic = [[dic objectForKey:@"errors"] firstObject];
-            [weakself loginFailure:[msgDic objectForKey:@"message"]];
-        }] ;
+        [self login];
     }
+}
+
+-(void)login
+{
+    __weak LoginViewController * weakself = self;
+    
+    NetWorkAPIManager * manager = [NetWorkAPIManager defaultManager];
+
+    [manager loginWithUsername:self.name Password:self.password success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        
+        [weakself queryUserInfo];
+  
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        //错误提示
+        NSString * info = [error.userInfo objectForKey:@"body"];
+        NSDictionary * dic = [CommonTool dictionaryWithJsonString:info];
+        NSDictionary * msgDic = [[dic objectForKey:@"errors"] firstObject];
+        [weakself loginFailure:[msgDic objectForKey:@"message"]];
+    }] ;
 }
 
 -(void)skipLogin
@@ -290,30 +325,29 @@
 
 -(void)queryUserInfo
 {
+    __weak LoginViewController * weakself = self;
     NetWorkAPIManager * manager = [NetWorkAPIManager defaultManager];
     [manager queryUserInfosuccess:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        [weakself saveAccountAndPwd];
         NSNotificationCenter * notify = [NSNotificationCenter defaultCenter];
         [notify postNotificationName:NOTIFICATION_LOGIN_SUCCESS object:NULL userInfo:NULL];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        [self.view showHint:@"获取用户信息失败"];
-
+         
+        NSDictionary * errorInfo = [CommonTool getErrorInfo:error];
+        if ([[errorInfo objectForKey:@"code"] isEqualToString:@"PASSWORD_IS_EXPIRED"]) {
+            [weakself showModifyViewController];
+        }else {
+            [weakself.view showHint:@"获取用户信息失败"];
+        }
     }];
 }
 
--(NSDictionary *)dictionaryWithJsonString:(NSString *)jsonString {
-   if (jsonString == nil) {
-       return nil;
-   }
-   NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-   NSError *err;
-   NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                       options:NSJSONReadingMutableContainers
-                                                         error:&err];
-   if(err) {
-       NSLog(@"json解析失败：%@",err);
-       return nil;
-   }
-   return dic;
+-(void)showModifyViewController
+{
+    FirstModifyPasswordViewController * modifyCtrl = [[FirstModifyPasswordViewController alloc] init];
+    modifyCtrl.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+    [modifyCtrl showViewController:self];
 }
 
 

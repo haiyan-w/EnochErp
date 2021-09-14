@@ -19,7 +19,7 @@
 #define TAG_TABLEVIEW_SELECTED 2
 
 
-@interface AccessoryViewController ()<UITextFieldDelegate,UITableViewDelegate, UITableViewDataSource,GoodsTableViewCellDelagate>
+@interface AccessoryViewController ()<UITextFieldDelegate,UITableViewDelegate, UITableViewDataSource>
 //@property(nonatomic,readwrite,strong)NSMutableArray * allGoods;
 @property(nonatomic,readwrite,strong)NSMutableArray * searchGoods;
 @property(nonatomic,readwrite,strong)NSMutableArray * selectGoods;//已选配件
@@ -202,7 +202,6 @@
         _dropTableView.hidden = YES;
         _selectTableView.hidden = NO;
     }
-        
 }
 
 -(void)addItem

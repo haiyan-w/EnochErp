@@ -6,10 +6,8 @@
 //
 
 #import "MaintanceTableViewCell.h"
-#import "DetailTableViewCell.h"
 #import "PopViewController.h"
 #import "MaintanceViewController.h"
-#import "AccessoryViewController.h"
 #import "NSNumber+Common.h"
 #import "ComplexBox.h"
 #import "AddMaintanceViewController.h"
@@ -17,7 +15,7 @@
 
 #define TAG_TEXTFIELD_HOUR     31
 #define TAG_TEXTFIELD_PRICE    32
-//#define TAG_TEXTFIELD_DISCOUNT 33
+#define TAG_TEXTFIELD_NAME     33
 #define TAG_TEXTFIELD_WORKINGTEAM 34
 #define TAG_TEXTFIELD_ENGINEER 35
 #define TAG_TEXTFIELD_CATEGORY 36
@@ -27,23 +25,19 @@
 #define TAG_POPVIEW_WORKINGTEAM  53
 #define TAG_POPVIEW_ENGINEER  54
 
-@interface MaintanceTableViewCell()<UITextFieldDelegate,UITableViewDelegate,UITableViewDataSource,MaintanceDelegate,PopViewDelagate,AccessoryViewControllerDelegate,DetailTableViewCellDelegate,EditMaintanceDelegate>
+@interface MaintanceTableViewCell()<UITextFieldDelegate,UITableViewDelegate,UITableViewDataSource,MaintanceDelegate,PopViewDelagate,EditMaintanceDelegate>
 @property (strong, nonatomic) IBOutlet UIView *bgview;
-@property (strong, nonatomic) IBOutlet UILabel *nameLabel;
+@property (strong, nonatomic) IBOutlet UITextField *nameTF;
 
-@property (weak, nonatomic) IBOutlet UIButton *nameBtn;
 @property (strong, nonatomic) IBOutlet ComplexBox *categoryBox;
 @property (strong, nonatomic) IBOutlet ComplexBox *workingteamBox;
 @property (strong, nonatomic) IBOutlet ComplexBox *engineerBox;
 
-@property (strong, nonatomic) IBOutlet UIButton *goodsBtn;
-@property (strong, nonatomic) IBOutlet UILabel *goodsLable;
 
 @property (weak, nonatomic) IBOutlet UITextField *hourTF;
 @property (weak, nonatomic) IBOutlet UITextField *priceTF;
-//@property (weak, nonatomic) IBOutlet UITextField *discountTF;
 
-@property (strong, nonatomic) IBOutlet UITableView *detailTable;
+//@property (strong, nonatomic) IBOutlet UITableView *detailTable;
 
 @property (assign, nonatomic,getter=isExtend)BOOL isExtend;
 @property (strong, nonatomic)NSMutableDictionary * curMaintance;//当前维修项目
@@ -60,18 +54,13 @@
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.bgview.layer.cornerRadius = 4;
     
-    [_detailTable registerNib:[UINib nibWithNibName:@"DetailTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"DetailTableViewCell"];
-    _detailTable.delegate = self;
-    _detailTable.dataSource = self;
-    _detailTable.separatorStyle = UITableViewCellSeparatorStyleNone;
-    
+    _nameTF.delegate = self;
+    _nameTF.tag = TAG_TEXTFIELD_NAME;
     _hourTF.delegate= self;
     _hourTF.tag = TAG_TEXTFIELD_HOUR;
     _priceTF.delegate= self;
     _priceTF.tag = TAG_TEXTFIELD_PRICE;
-//    _discountTF.delegate= self;
-//    _discountTF.tag = TAG_TEXTFIELD_DISCOUNT;
-
+    
     __weak  MaintanceTableViewCell * weakself = self;
     
     [_categoryBox setMode:ComplexBoxSelect];
@@ -103,13 +92,10 @@
 
     _hourTF.keyboardType = UIKeyboardTypeDecimalPad;
     _priceTF.keyboardType = UIKeyboardTypeDecimalPad;
-//    _discountTF.keyboardType = UIKeyboardTypeDecimalPad;
-    
-    [self.nameBtn addTarget:self action:@selector(nameBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textChange:) name:UITextFieldTextDidChangeNotification object:_hourTF];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textChange:) name:UITextFieldTextDidChangeNotification object:_priceTF];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textChange:) name:UITextFieldTextDidChangeNotification object:_discountTF];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textChange:) name:UITextFieldTextDidChangeNotification object:_nameTF];
     
 }
 
@@ -146,6 +132,11 @@
     UITextField * textfield = notice.object;
     
     switch (textfield.tag) {
+        case TAG_TEXTFIELD_NAME:
+        {
+            [self.curMaintance setValue:_nameTF.text forKey:@"name"];
+        }
+            break;
         case TAG_TEXTFIELD_HOUR:
         {
             [self.curMaintance setValue:[NSNumber numberWithFloat:[_hourTF.text floatValue]] forKey:@"laborHour"];
@@ -157,11 +148,6 @@
             [self.curMaintance setValue:[NSNumber numberWithFloat:[_priceTF.text floatValue]] forKey:@"price"];
         }
             break;
-//        case TAG_TEXTFIELD_DISCOUNT:
-//        {
-//            [self.curMaintance setValue:[NSNumber numberWithFloat:[_discountTF.text floatValue]/100] forKey:@"discountRate"];// discountRatePercent
-//        }
-//            break;
             
         default:
             break;
@@ -176,23 +162,10 @@
     // Configure the view for the selected state
 }
 
-- (void)nameBtnClicked:(id)sender
-{
-    AddMaintanceViewController * addCtrl = [[AddMaintanceViewController alloc] initWithData:[NSMutableDictionary dictionaryWithDictionary:[self.curMaintance objectForKey:@"maintenance"]]];
-    addCtrl.delegate = self;
-    [self.navigationController pushViewController:addCtrl animated:YES];
-}
 
 - (IBAction)deleteBtnClick:(id)sender {
     [self resign];
     [self.delagate tableviewcell:self didDeleteAtIndex:_index];
-}
-
-
-- (IBAction)extendBtnClick:(id)sender {
-    [self resign];
-    self.isExtend = !_isExtend;
-    [self.delagate tableviewcell:self needExtend:_isExtend];
 }
 
 - (void)selectEngineers:(id)sender {
@@ -225,7 +198,9 @@
     [self resign];
     NSMutableArray * popStrings = [NSMutableArray array];
     for (NSDictionary * charge in self.chargeMethods) {
-        [popStrings addObject:[charge objectForKey:@"message"]];
+        if ([[charge objectForKey:@"forServiceMaintenance"] boolValue]) {
+            [popStrings addObject:[charge objectForKey:@"message"]];
+        }
     }
     PopViewController * popCtrl = [[PopViewController alloc] initWithTitle:@"收费类别" Data:popStrings];
     popCtrl.delegate = self;
@@ -242,58 +217,17 @@
     [self.navigationController pushViewController:addCtrl animated:YES];
 }
 
-- (IBAction)addAccessory:(id)sender {
-    [self resign];
-    AccessoryViewController * accessoryCtrl = [[AccessoryViewController alloc] initWithData:[self.curMaintance objectForKey:@"maintenanceGoods"]];
-    accessoryCtrl.delegate = self;
-    accessoryCtrl.chargeMethods = self.chargeMethods;
-    
-    [self.navigationController pushViewController:accessoryCtrl animated:YES];
-}
-
--(void)setGoodsCount:(NSInteger)count
-{
-    NSString * numStr = [NSString stringWithFormat:@"配件信息（%@）", [NSNumber numberWithInteger:count]];
-    NSMutableAttributedString * attrStr = [[NSMutableAttributedString alloc] initWithString:numStr];
-    NSRange range = [numStr rangeOfString:[NSString stringWithFormat:@"（%@）", [NSNumber numberWithInteger:count]]];
-    [attrStr addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:range];
-    
-    _goodsLable.attributedText = attrStr;
-    
-}
-
--(void)setIsExtend:(BOOL)isExtend
-{
-    _isExtend = isExtend;
-    
-    NSArray * goodsArray = [self.curMaintance objectForKey:@"maintanceGoods"];
-    NSInteger height = 35 *goodsArray.count;
-    CGRect frame = _detailTable.frame;
-    
-    if (_isExtend) {
-        frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, height);
-    }else {
-        frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, 0);
-    }
-    _detailTable.frame = frame;
-    [self.tableview reloadData];
-}
-
 -(void)setCurMaintance:(NSMutableDictionary *)curMaintance
 {
     _curMaintance = curMaintance;
-    
-    NSArray * array = [_curMaintance objectForKey:@"maintenanceGoods"];
-    NSMutableArray * goods = [NSMutableArray array];
-    for (NSDictionary * good in array) {
-        NSMutableDictionary * agood = [NSMutableDictionary dictionaryWithDictionary:good];
-        [goods addObject:agood];
-    }
-    [_curMaintance setObject:goods forKey:@"maintenanceGoods"];
-    [self setGoodsCount:array.count];
-    
+
+    self.nameTF.text = [curMaintance objectForKey:@"name"];
     NSDictionary * maintance = [curMaintance objectForKey:@"maintenance"];
-    self.nameLabel.text = [maintance objectForKey:@"name"];
+    if ([maintance objectForKey:@"id"]) {
+        self.nameTF.enabled = NO;
+    }else {
+        self.nameTF.enabled = YES;
+    }
     NSDictionary * chargeMethod = [curMaintance objectForKey:@"chargingMethod"];
     if (!chargeMethod) {
         chargeMethod = [self.chargeMethods firstObject];
@@ -301,18 +235,14 @@
     [self setChargeMethod:chargeMethod];
     NSNumber * hour = [_curMaintance objectForKey:@"laborHour"];
     NSNumber * price = [_curMaintance objectForKey:@"price"];
-//    NSNumber * discount = [_curMaintance objectForKey:@"discountRate"];
+
     if (hour) {
-//        self.hourTF.text = [NSString stringWithFormat:@"%@",hour];
+
         self.hourTF.text = [hour DoubleStringValueWithDigits:2];
     }
     if (price) {
         self.priceTF.text = [price DoubleStringValueWithDigits:2];
-//        self.priceTF.text = [NSString stringWithFormat:@"%@",price];
     }
-//    if (discount) {
-//        self.discountTF.text = [NSString stringWithFormat:@"%@",[NSNumber numberWithFloat:discount.floatValue*100]];
-//    }
     
     self.workingteamBox.text = [[_curMaintance objectForKey:@"workingTeam"] objectForKey:@"name"];
     
@@ -335,7 +265,14 @@
         self.engineerBox.text = string;
     }
     
- 
+    NSDictionary * valuationMethod = [curMaintance objectForKey:@"valuationMethod"];
+    if ([[valuationMethod objectForKey:@"code"] isEqualToString:@"H"]) {
+        //工时计价
+        self.hourTF.enabled = YES;
+    }else if ([[valuationMethod objectForKey:@"code"] isEqualToString:@"P"]){
+        //金额计价
+        self.hourTF.enabled = NO;
+    }
 }
 
 -(void)setChargeMethod:(NSDictionary *)chargeMethod
@@ -345,44 +282,6 @@
         [_curMaintance setObject:chargeMethod forKey:@"chargingMethod"];
     }
 }
-
-#pragma mark - DetailCellDelagate
-
--(void)detailCell:(DetailTableViewCell *)cell deleteAtIndex:(NSInteger)index
-{
-    NSArray * goodsArray = [self.curMaintance objectForKey:@"maintenanceGoods"];
-    NSMutableArray * array = [NSMutableArray arrayWithArray:goodsArray];
-    [array removeObjectAtIndex:index];
-    [self.curMaintance setObject:array forKey:@"maintenanceGoods"];
-    [self.detailTable reloadData];
-    [self.tableview reloadData];
-    
-}
-#pragma mark - UITableViewDelagate
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    NSArray * goodsArray = [self.curMaintance objectForKey:@"maintenanceGoods"];
-    return goodsArray.count;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return 35;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    DetailTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"DetailTableViewCell"];
-    if (!cell) {
-        [tableView registerNib:[UINib nibWithNibName:@"DetailTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"DetailTableViewCell"];
-        cell = [tableView dequeueReusableCellWithIdentifier:@"DetailTableViewCell"];
-    }
-    [cell config:[[self.curMaintance objectForKey:@"maintenanceGoods"] objectAtIndex:indexPath.row] withIndex:indexPath.row];
-    cell.delegate = self;
-    return cell;
-}
-
 
 -(void)popview:(UIViewController *)popview disSelectRowAtIndex:(NSInteger)index
 {
@@ -451,19 +350,19 @@
    
 }
 
--(void)save:(NSArray *)goods
-{
-    NSMutableArray * array = [NSMutableArray arrayWithArray:goods];
-    for (NSMutableDictionary * agood in array) {
-//        [agood setValue:[_curMaintance  objectForKey:@"chargingMethod"] forKey:@"chargingMethod"];
-        [agood setValue:[NSDictionary dictionaryWithObject:@"N" forKey:@"code"] forKey:@"inflatedFlag"];//非虚增项目
-        [agood setValue:[NSDictionary dictionaryWithObject:@"N" forKey:@"code"] forKey:@"fromQuotation"];//附表
-        [agood setValue:[NSDictionary dictionaryWithObject:@"N" forKey:@"code"] forKey:@"returnFinished"];
-    }
-    [_curMaintance setObject:array forKey:@"maintenanceGoods"];
-    [self setGoodsCount:[array count]];
-    [self.detailTable reloadData];
-}
+//-(void)save:(NSArray *)goods
+//{
+//    NSMutableArray * array = [NSMutableArray arrayWithArray:goods];
+//    for (NSMutableDictionary * agood in array) {
+////        [agood setValue:[_curMaintance  objectForKey:@"chargingMethod"] forKey:@"chargingMethod"];
+//        [agood setValue:[NSDictionary dictionaryWithObject:@"N" forKey:@"code"] forKey:@"inflatedFlag"];//非虚增项目
+//        [agood setValue:[NSDictionary dictionaryWithObject:@"N" forKey:@"code"] forKey:@"fromQuotation"];//附表
+//        [agood setValue:[NSDictionary dictionaryWithObject:@"N" forKey:@"code"] forKey:@"returnFinished"];
+//    }
+//    [_curMaintance setObject:array forKey:@"maintenanceGoods"];
+////    [self setGoodsCount:[array count]];
+//    [self.detailTable reloadData];
+//}
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField
 {
@@ -473,7 +372,12 @@
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    return [self validateNumber:string];
+    if ((textField.tag == TAG_TEXTFIELD_HOUR) ||((textField.tag == TAG_TEXTFIELD_PRICE) )) {
+        return [self validateNumber:string];
+    }else {
+        return YES;
+    }
+   
 }
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
 {
@@ -484,13 +388,6 @@
         [self.delagate tableviewcellBecomeFirstResponder:rect];
     }
     return YES;
-}
-
-
--(void)changeMaintenance:(nonnull NSMutableDictionary *)maintenance
-{
-    [self.curMaintance setObject:maintenance forKey:@"maintenance"];
-    self.nameLabel.text = [maintenance objectForKey:@"name"];
 }
 
 #pragma mark - tool

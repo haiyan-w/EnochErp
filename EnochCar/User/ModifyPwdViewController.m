@@ -58,11 +58,15 @@
     
     if ([self check]) {
         __weak ModifyPwdViewController * weakself = self;
-        [[NetWorkAPIManager defaultManager] modifyPassword:self.pwdOld.text newPwd:self.pwdNew.text success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+
+        [[NetWorkAPIManager defaultManager] modifyPassword:[self.pwdOld.text lowercaseString] newPwd:self.pwdNew.text success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             
             [weakself resign];
             [weakself resetData];
             [self showHint:@"修改密码成功"];
+            
+            NSNotificationCenter * notify = [NSNotificationCenter defaultCenter];
+            [notify postNotificationName:NOTIFICATION_LOGOUT_SUCCESS object:NULL userInfo:NULL];
         
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             [self showHint:@"修改密码失败"];

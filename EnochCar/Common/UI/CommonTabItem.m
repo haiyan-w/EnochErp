@@ -36,18 +36,28 @@
     return self;
 }
 
-//- (instancetype)initWithTitle:(NSString *)title imagename:(NSString *)imagename selectedImage:(NSString *)selectedImagename
-//{
-//
-//    self = [super init];
-//    if (self) {
-//        _title = title;
-//        _imageName = imagename;
-//        _selectedImageName = selectedImagename;
-//    }
-//    return self;
-//
-//}
+- (instancetype)initWithAttrText:(NSAttributedString *)attrText
+{
+    self = [super init];
+    if (self) {
+        _style = CommonTabItemStyleAttrText;
+        _attrTitle = attrText;
+//        _selectedAttrTitle = selectedAttrText;
+    }
+    return self;
+}
+
+- (instancetype)initWithAttrText:(NSAttributedString *)attrText selectedAttr:(NSAttributedString*)selectedAttrText
+{
+    self = [super init];
+    if (self) {
+        _style = CommonTabItemStyleAttrText;
+        _attrTitle = attrText;
+        _selectedAttrTitle = selectedAttrText;
+    }
+    return self;
+}
+
 
 -(CommonTabItemStyle)style
 {

@@ -141,7 +141,7 @@ typedef enum{
 -(NotFoundView*)notfoundView
 {
     if (!_notfoundView) {
-        _notfoundView = [[NotFoundView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+        _notfoundView = [[NotFoundView alloc] initWithFrame:CGRectMake(0, 0, self.tableview.frame.size.width, self.tableview.frame.size.height)];
     }
     return _notfoundView;
 }
@@ -265,21 +265,21 @@ typedef enum{
         }
         weakself.isLoading = NO;
         dispatch_async(dispatch_get_main_queue(), ^{
+            
+            if (_notfoundView) {
+                [_notfoundView removeFromSuperview];
+                _notfoundView = nil;
+            }
+            if (_netOffView) {
+                [_netOffView removeFromSuperview];
+                _netOffView = nil;
+            }
+            if (_loadingView) {
+                [_loadingView removeFromSuperview];
+                _loadingView = nil;
+            }
             if (weakself.dataArray.count == 0) {
-                [weakself addSubview:self.notfoundView];
-            }else {
-                if (_notfoundView) {
-                    [_notfoundView removeFromSuperview];
-                    _notfoundView = nil;
-                }
-                if (_netOffView) {
-                    [_netOffView removeFromSuperview];
-                    _netOffView = nil;
-                }
-                if (_loadingView) {
-                    [_loadingView removeFromSuperview];
-                    _loadingView = nil;
-                }
+                [weakself.tableview addSubview:self.notfoundView];
             }
             [weakself.tableview.refreshControl endRefreshing];
             [weakself.tableview reloadData];

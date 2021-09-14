@@ -66,8 +66,12 @@
                                     <constraint firstAttribute="height" constant="12" id="bEf-wH-Mzg"/>
                                 </constraints>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="王海燕  18667190728" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TNC-Ve-q5v">
-                                <rect key="frame" x="12" y="103" width="174" height="15"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TNC-Ve-q5v">
+                                <rect key="frame" x="12" y="103" width="48" height="18"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="18" id="0hc-v2-TMD"/>
+                                    <constraint firstAttribute="width" constant="48" id="jwc-Ug-npp"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="12"/>
                                 <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -86,19 +90,19 @@
                                 </state>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="预计总费用：" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LIX-Ph-dcV">
-                                <rect key="frame" x="12" y="146" width="75" height="15"/>
+                                <rect key="frame" x="12" y="149" width="75" height="15"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="12"/>
                                 <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="项目（0）" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="raf-Jk-ceB">
-                                <rect key="frame" x="226" y="146" width="122" height="15"/>
+                                <rect key="frame" x="226" y="149" width="122" height="15"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="12"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="200" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zWS-ty-BVX">
-                                <rect key="frame" x="89" y="145" width="80" height="17"/>
+                                <rect key="frame" x="89" y="148" width="80" height="17"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="100" id="wAh-3F-mKd"/>
                                     <constraint firstAttribute="height" constant="17" id="xrV-cF-myq"/>
@@ -122,6 +126,17 @@
                                     <action selector="extraBtnClicked:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="dEr-QM-3dO"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZLU-li-PKA">
+                                <rect key="frame" x="60" y="94" width="36" height="36"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="36" id="9Dd-3V-lEe"/>
+                                    <constraint firstAttribute="width" constant="36" id="lQy-ui-h64"/>
+                                </constraints>
+                                <state key="normal" image="telephone"/>
+                                <connections>
+                                    <action selector="telephoneBtnClicked:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="hRX-HZ-oDB"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -136,13 +151,14 @@
                             <constraint firstItem="IwA-St-zRw" firstAttribute="top" secondItem="Wot-Fp-XgP" secondAttribute="top" id="NdT-Su-hlx"/>
                             <constraint firstItem="uma-gH-6oD" firstAttribute="leading" secondItem="urJ-41-tHT" secondAttribute="leading" id="PWh-sM-LRI"/>
                             <constraint firstItem="LIX-Ph-dcV" firstAttribute="leading" secondItem="u2N-sd-eqO" secondAttribute="leading" constant="12" id="R9e-dh-VHY"/>
+                            <constraint firstItem="ZLU-li-PKA" firstAttribute="centerY" secondItem="TNC-Ve-q5v" secondAttribute="centerY" id="RAd-bC-27A"/>
                             <constraint firstItem="IwA-St-zRw" firstAttribute="leading" secondItem="u2N-sd-eqO" secondAttribute="leading" constant="12" id="Rsd-dB-h0x"/>
                             <constraint firstItem="raf-Jk-ceB" firstAttribute="height" secondItem="LIX-Ph-dcV" secondAttribute="height" id="Uol-6c-9UQ"/>
                             <constraint firstItem="TNC-Ve-q5v" firstAttribute="leading" secondItem="IwA-St-zRw" secondAttribute="leading" id="VRn-wF-n9f"/>
                             <constraint firstItem="raf-Jk-ceB" firstAttribute="leading" secondItem="zWS-ty-BVX" secondAttribute="trailing" constant="60" id="WAf-M3-3t3"/>
                             <constraint firstItem="uma-gH-6oD" firstAttribute="width" secondItem="urJ-41-tHT" secondAttribute="width" id="X0R-WN-TmQ"/>
+                            <constraint firstItem="ZLU-li-PKA" firstAttribute="leading" secondItem="TNC-Ve-q5v" secondAttribute="trailing" id="aP2-Pp-cxf"/>
                             <constraint firstAttribute="height" constant="175" id="amt-QQ-2X0"/>
-                            <constraint firstItem="Wot-Fp-XgP" firstAttribute="leading" secondItem="TNC-Ve-q5v" secondAttribute="trailing" constant="12" id="ay1-WG-wPp"/>
                             <constraint firstItem="LIX-Ph-dcV" firstAttribute="top" secondItem="TNC-Ve-q5v" secondAttribute="bottom" constant="28" id="faP-C4-Oal"/>
                             <constraint firstAttribute="trailing" secondItem="cIj-ai-U7k" secondAttribute="trailing" constant="12" id="hws-Ag-CVr"/>
                             <constraint firstItem="urJ-41-tHT" firstAttribute="top" secondItem="u2N-sd-eqO" secondAttribute="top" constant="15" id="oGR-Vd-pfY"/>
@@ -198,6 +214,7 @@
     <resources>
         <image name="rect" width="150" height="52"/>
         <image name="sevice_btn_extra" width="59" height="23"/>
+        <image name="telephone" width="36" height="36"/>
         <image name="vip" width="16" height="16"/>
     </resources>
 </document>

@@ -83,8 +83,6 @@ static NetWorkAPIManager * apiManager;
     [_manager.requestSerializer setValue:[CommonTool terminalString] forHTTPHeaderField:@"ENOCH_TERMINAL"];
 }
 
-
-
 -(void)application:(NSDictionary *)info Success:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
            Failure:(nullable void (^)(NSURLSessionDataTask * _Nullable task, NSError *error))failure
 {
@@ -232,7 +230,7 @@ static NetWorkAPIManager * apiManager;
     
 }
 
-//获取系统配置(*主要用到“派工必须选择技师”设置项)
+//获取系统配置
 -(void)getBranchAttributeSuccess:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
                       Failure:(nullable void (^)(NSURLSessionDataTask * _Nullable task, NSError *error))failure
 {
@@ -240,9 +238,37 @@ static NetWorkAPIManager * apiManager;
     NSString * urlString = [NSString stringWithFormat:@"%@%@",BASEURL,appendStr];
     urlString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     [self resetManager];
-    [_manager GET:urlString parameters:NULL headers:NULL progress:^(NSProgress * _Nonnull downloadProgress) {
     
-    } success:success failure:failure];
+    [_manager GET:urlString parameters:NULL headers:NULL progress:^(NSProgress * _Nonnull downloadProgress) {
+    }success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary * resultDic = responseObject;
+        NSArray * array = [resultDic objectForKey:@"data"];
+        
+        for (NSDictionary * dic in array) {
+            NSString * code = [[dic objectForKey:@"id"] objectForKey:@"code"];
+            if ([code isEqualToString:@"SVMTVLM"]) {
+                self.chargeMethodCode = [dic objectForKey:@"value"];
+            }
+            if ([code isEqualToString:@"SVMLBHPRC"]) {
+                self.price = [dic objectForKey:@"value"];
+            }
+            if ([code isEqualToString:@"FRCASN"]) {
+                NSString * needEngineer = [dic objectForKey:@"value"];
+                if ([needEngineer isEqualToString:@"Y"]) {
+                    self.needEngineer = YES;
+                }else {
+                    self.needEngineer = NO;
+                }
+            }
+            
+        }
+        
+        success(task,responseObject);
+    } failure:failure];
+    
+//    [_manager GET:urlString parameters:NULL headers:NULL progress:^(NSProgress * _Nonnull downloadProgress) {
+//
+//    } success:success failure:failure];
     
 }
 
@@ -375,6 +401,9 @@ static NetWorkAPIManager * apiManager;
     NSString * urlString = [NSString stringWithFormat:@"%@%@",BASEURL,appendStr];
     //过滤必填项
     [customInfo setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
+    //默认设置
+    [customInfo setValue:[NSNumber numberWithFloat:1] forKey:@"serviceGoodsDiscountRate"];
+    [customInfo setValue:[NSNumber numberWithFloat:1] forKey:@"serviceMaintenanceDiscountRate"];
     
     NSMutableDictionary * parm = [NSMutableDictionary dictionary];
     NSMutableArray * array = [NSMutableArray array];
@@ -628,6 +657,24 @@ static NetWorkAPIManager * apiManager;
     } success:success failure:failure];
     
 }
+
+-(void)queryAdvisorSuccess:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
+           Failure:(nullable void (^)(NSURLSessionDataTask * _Nullable task, NSError *error))failure
+{
+    NSString * appendStr = [NSString stringWithFormat:@"/enocloud/common/advisorteam/advisor?branchId=%d",self.branchID];
+    NSString * urlString = [NSString stringWithFormat:@"%@%@",BASEURL,appendStr];
+
+    urlString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    
+    [self resetManager];
+    
+    [_manager GET:urlString parameters:NULL headers:NULL progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } success:success failure:failure];
+    
+}
+
+
 
 -(void)queryWorkingTeamsuccess:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
                     failure:(nullable void (^)(NSURLSessionDataTask * _Nullable task, NSError *error))failure

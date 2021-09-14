@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)setRightBtn:(UIButton *)rightBtn;
 -(void)showHint:(NSString *)message;
 -(void)resign;
+-(void)back;
 @end
 
 NS_ASSUME_NONNULL_END

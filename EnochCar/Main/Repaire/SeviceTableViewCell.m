@@ -42,17 +42,6 @@
     self.serviceStateLab.layer.masksToBounds = YES;
     
     self.selectionStyle = UITableViewCellSelectionStyleNone;
-
-    
-//    self.layer.shadowOffset=CGSizeMake(0,3);//往x方向偏移0，y方向偏移0
-//
-//    self.layer.shadowOpacity=0.16;//设置阴影透明度
-//
-//    self.layer.shadowColor= [UIColor blackColor].CGColor;//设置阴影颜色
-//
-//    self.layer.shadowRadius=4;//设置阴影半径
-//
-//    self.layer.borderWidth=0.5f;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -110,7 +99,7 @@
     _serialNoLab.text = serialNo;
     _enterDateLab.text = [NSString stringWithFormat:@"%@ 进厂",timeStr];
     _plateNoLab.text = plateNo;
-    _nameAndCellphoneLab.text = [NSString stringWithFormat:@"%@  %@",customerName,cellphone];
+    _nameAndCellphoneLab.text = [NSString stringWithFormat:@"%@",customerName];
     _totalCostLab.text =[NSString stringWithFormat:@"%.2f",totalCost];
     _serviceStateLab.text = status;
     [_categoryBtn setTitle:serviceCategoryName forState:UIControlStateNormal];
@@ -159,24 +148,31 @@
     }
 }
 
+- (IBAction)telephoneBtnClicked:(id)sender {
+    
+    NSString * string = [NSString stringWithFormat:@"telprompt://%@",[_querySevice objectForKey:@"cellphone"]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:string]];    
+}
+
+
 -(void)querySeviceDetail
 {
     __weak SeviceTableViewCell * weakself = self;
-    if (!self.curSevice) {
-        [[NetWorkAPIManager defaultManager] queryService:[[self.querySevice objectForKey:@"id"] integerValue] success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            NSDictionary * resp = responseObject;
-            NSDictionary * data = [[resp objectForKey:@"data"] firstObject];
-            weakself.curSevice = [NSMutableDictionary dictionaryWithDictionary:data];
-            [weakself.querySevice setValue:data forKey:SEVICE_DETAIL];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [weakself configData:weakself.querySevice];
-                [weakself showPopView];
-            });
+    [[NetWorkAPIManager defaultManager] queryService:[[self.querySevice objectForKey:@"id"] integerValue] success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary * resp = responseObject;
+        NSDictionary * data = [[resp objectForKey:@"data"] firstObject];
+        
+        weakself.curSevice = [NSMutableDictionary dictionaryWithDictionary:data];
+      
+        [weakself.querySevice setValue:data forKey:SEVICE_DETAIL];
+        dispatch_async(dispatch_get_main_queue(), ^{
+//            [weakself configData:weakself.querySevice];
+            [weakself showPopView];
+        });
 
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 
-        }];
-    }
+    }];
 }
 
 -(void)showPopView
@@ -254,7 +250,7 @@
         }];
         
     }else {
-        [self showAlertWithTitle:@"请完成检查" message:@""];
+        [self showAlertWithTitle:@"请质检" message:@""];
     }
 }
 
@@ -262,8 +258,10 @@
 {
     __weak SeviceTableViewCell * weakself = self;
     [[NetWorkAPIManager defaultManager] updateService:parm success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
         dispatch_async(dispatch_get_main_queue(), ^{
-            [weakself.delegate tableViewCell:self update:YES];
+//            [weakself.delegate tableViewCell:self update:YES];
+            [weakself showAlertWithTitle:@"工单更新成功" message:@""];
         });
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSString * info = [error.userInfo objectForKey:@"body"];
@@ -279,22 +277,6 @@
 
 -(NSDictionary*)getNextStep:(NSDictionary *)status
 {
-//    NSMutableDictionary * next = [NSMutableDictionary dictionary];
-//    NSString * code = [status objectForKey:@"code"];
-//    if ([code isEqualToString:@"PR"]) {
-//        [next setValue:@"IM" forKey:@"code"];
-//    }else if ([code isEqualToString:@"IM"]){
-//        [next setValue:@"MC" forKey:@"code"];
-//    }else if ([code isEqualToString:@"MC"]){
-//        [next setValue:@"AA" forKey:@"code"];
-//    }else if ([code isEqualToString:@"AA"]){
-//        [next setValue:@"PD" forKey:@"code"];
-//    }else {
-//        [next setValue:@"" forKey:@"code"];
-//    }
-//    return next;
-    
-    //
     NSMutableDictionary * next = [NSMutableDictionary dictionary];
     NSString * code = [status objectForKey:@"code"];
     if ([code isEqualToString:@"PR"]) {
@@ -362,8 +344,8 @@
                if (!array) {
                    array = [NSArray array];
                }
-               MaintanceAndAccessoryViewController * maintanceCtrl = [[MaintanceAndAccessoryViewController alloc] initWithData:array];
-               maintanceCtrl.delegate = self;
+               MaintanceAndAccessoryViewController * maintanceCtrl = [[MaintanceAndAccessoryViewController alloc] initWithSevice:self.curSevice];
+//               maintanceCtrl.delegate = self;
                [self.navCtrl pushViewController:maintanceCtrl animated:YES];
            }else {
                [self nextStep];

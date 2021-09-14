@@ -20,7 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MaintanceAndAccessoryViewController : CommonViewController
 @property(nonatomic, readwrite, strong) id <MaintanceAndAccessoryDelegate> delegate;
--(instancetype)initWithData:(NSArray*)maintenances;
+//-(instancetype)initWithData:(NSArray*)maintenances;
+-(instancetype)initWithData:(NSArray*)maintenances goods:(NSArray *)goodsArray;
+-(instancetype)initWithSevice:(NSDictionary*)sevice;
 @end
 
 NS_ASSUME_NONNULL_END

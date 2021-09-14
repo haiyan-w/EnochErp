@@ -44,6 +44,9 @@
     _titleLabel.backgroundColor = [UIColor clearColor];
     [_navbarView addSubview:_titleLabel];
     
+    UIView * line = [[UIView alloc] initWithFrame:CGRectMake(0, self.navbarView.frame.size.height-0.5, self.navbarView.frame.size.width, 0.5)];
+    line.backgroundColor = [UIColor colorWithRed:242/255.0 green:242/255.0 blue:242/255.0 alpha:1];
+    [_navbarView addSubview:line];
     [self.view addSubview:_navbarView];
     
     UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(taponbg:)];

@@ -35,6 +35,7 @@ typedef void(^ComplexBoxSelectBlock)(void);
 -(void)setEnable:(BOOL)enable;
 - (void)addTarget:(nullable id)target action:(SEL)action forControlEvents:(UIControlEvents)controlEvents;
 -(void)setBorder:(BOOL)border;
+-(void)setBorderColor:(UIColor*)borderColor;
 @end
 
 NS_ASSUME_NONNULL_END

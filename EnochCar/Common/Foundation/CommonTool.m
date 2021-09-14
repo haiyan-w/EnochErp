@@ -253,4 +253,81 @@
     return [[UIApplication sharedApplication] statusBarFrame].size.height + 44.f;
 }
 
++ (UIImage *)imageWithImageSimple:( UIImage *)image scaledToRect:(CGRect)newRect
+{
+    UIGraphicsBeginImageContextWithOptions(newRect.size, false, 1.0);
+    [image drawInRect : CGRectMake ( newRect.origin.x , newRect.origin.y ,newRect.size.width ,newRect.size.height )];
+    UIImage * newImage = UIGraphicsGetImageFromCurrentImageContext ();
+    UIGraphicsEndImageContext ();
+    return newImage;
+}
+
++ (UIImage *)cropImage:(UIImage *)image toRect:(CGRect)rect {
+
+    CGFloat x = rect.origin.x;
+
+    CGFloat y = rect.origin.y;
+
+    CGFloat width = rect.size.width;
+
+    CGFloat height = rect.size.height;
+
+    CGRect croprect = CGRectMake(floor(x), floor(y), round(width), round(height));
+
+//    UIImage *toCropImage = [image fixOrientation];// 纠正方向
+
+//    CGImageRef cgImage = CGImageCreateWithImageInRect(toCropImage.CGImage, croprect);
+    CGImageRef cgImage = CGImageCreateWithImageInRect(image.CGImage, croprect);
+
+    UIImage *cropped = [UIImage imageWithCGImage:cgImage];
+
+    CGImageRelease(cgImage);
+
+    return cropped;
+
+}
+
++ (BOOL)validateFloatNumber:(NSString*)number {
+    BOOL res = YES;
+    NSCharacterSet* tmpSet = [NSCharacterSet characterSetWithCharactersInString:@"0123456789."];
+    int i = 0;
+    while (i < number.length) {
+        NSString * string = [number substringWithRange:NSMakeRange(i, 1)];
+        NSRange range = [string rangeOfCharacterFromSet:tmpSet];
+        if (range.length == 0) {
+            res = NO;
+            break;
+        }
+        i++;
+    }
+    return res;
+}
+
++(NSString *)getErrorCode:(NSError *_Nonnull)error
+{
+    NSString * info = [error.userInfo objectForKey:@"body"];
+    NSDictionary * dic = [CommonTool dictionaryWithJsonString:info];
+    NSDictionary * msgDic = [[dic objectForKey:@"errors"] firstObject];
+    NSString * code = [msgDic objectForKey:@"code"];
+    return code;
+}
+
++(NSString *)getErrorMessage:(NSError *_Nonnull)error
+{
+    NSString * info = [error.userInfo objectForKey:@"body"];
+    NSDictionary * dic = [CommonTool dictionaryWithJsonString:info];
+    NSDictionary * msgDic = [[dic objectForKey:@"errors"] firstObject];
+    NSString * message = [msgDic objectForKey:@"message"];
+    return message;
+}
+
++(NSDictionary *)getErrorInfo:(NSError *_Nonnull)error
+{
+    NSString * info = [error.userInfo objectForKey:@"body"];
+    NSDictionary * dic = [CommonTool dictionaryWithJsonString:info];
+    NSDictionary * msgDic = [[dic objectForKey:@"errors"] firstObject];
+    return msgDic;
+}
+
+
 @end

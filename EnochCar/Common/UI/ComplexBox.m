@@ -13,6 +13,7 @@
 @property (nonatomic,assign) ComplexBoxMode mode;
 @property (nonatomic,strong) UIImageView * rightImage;
 @property (nonatomic,strong)CAShapeLayer *borderLayer;
+@property (nonatomic,strong) UIColor * borderColor;
 @end
 
 @implementation ComplexBox
@@ -188,8 +189,12 @@
 
 -(void)setBorder:(BOOL)border
 {
-    _border = border;
-    UIColor * color = [UIColor colorWithRed:240/255.0 green:240/255.0 blue:240/255.0 alpha:1];
+//    _border = border;
+//    UIColor * color = [UIColor colorWithRed:240/255.0 green:240/255.0 blue:240/255.0 alpha:1];
+    
+    if (!self.borderColor) {
+        self.borderColor = [UIColor colorWithRed:221/255.0 green:221/255.0 blue:221/255.0 alpha:1];
+    }
     
     if (self.borderLayer) {
         [self.borderLayer removeFromSuperlayer];
@@ -203,9 +208,15 @@
     _borderLayer.path = path.CGPath;
     _borderLayer.lineWidth = 1;
     _borderLayer.fillColor = [UIColor clearColor].CGColor;
-    _borderLayer.strokeColor = color.CGColor;
+    _borderLayer.strokeColor = self.borderColor.CGColor;
     [self.layer addSublayer:_borderLayer];
+}
+
+-(void)setBorderColor:(UIColor*)borderColor
+{
+    _borderColor = borderColor;
     
+    [self setBorder:YES];
 }
 
 -(void)setKeyboardType:(UIKeyboardType)keyboardType

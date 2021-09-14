@@ -7,6 +7,7 @@
 
 #import "BaseViewController.h"
 #import "AppDelegate.h"
+#import "CommonTool.h"
 
 @interface BaseViewController ()
 
@@ -25,7 +26,12 @@
     [super viewWillAppear: animated];
     
     AppDelegate *appdelegate=(AppDelegate *)[UIApplication sharedApplication].delegate;
-    appdelegate.shouldLandscapeRight = FALSE;
+    if ([CommonTool isIPad]) {
+        appdelegate.shouldLandscapeRight = YES;
+    }else {
+        appdelegate.shouldLandscapeRight = FALSE;
+    }
+    
     [appdelegate application:[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:self.view.window];
     
     [self listenNetworkReachabilityStatus];

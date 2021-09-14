@@ -116,7 +116,7 @@
 
 -(void)ShowKeyboard
 {
-    _keyboardView = [[PlateNoKeyboardView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height - 200, self.view.bounds.size.width, 200)];
+    _keyboardView = [[PlateNoKeyboardView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height - 234, self.view.bounds.size.width, 234)];
     self.keyboardView.delegate = self;
     [self.view addSubview:self.keyboardView];
     

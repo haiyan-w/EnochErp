@@ -42,7 +42,7 @@
 
 @property(nonatomic,readwrite,strong) DataBase * database;
 
-@property(nonatomic,readwrite,strong)  NSURLSessionDataTask * curTask;
+//@property(nonatomic,readwrite,strong)  NSURLSessionDataTask * curTask;
 
 
 @end
@@ -437,7 +437,7 @@
 {
     __weak RecognizeViewController * weakself = self;
     NetWorkAPIManager * manager = [NetWorkAPIManager defaultManager];
-    self.curTask = [manager imageRecognizeWithData:imgData Type:_curType success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    [manager imageRecognizeWithData:imgData Type:_curType success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         NSError*err;
         NSDictionary*resultDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:&err];
@@ -466,9 +466,12 @@
                 
                 NSString * model = [self getVehicleModelString:[data objectForKey:@"model"]];
                 NSString * vehicletype = [data objectForKey:@"vehicle_type"];
-                NSString * addr = [data objectForKey:@"addr"];
-                NSString * url = [data objectForKey:@"url"];//识别图片url
-    
+                NSString * address = [data objectForKey:@"addr"];
+                NSString * driverLicenceFirstUrls = [data objectForKey:@"url"];//识别图片url
+                NSString * engineNumber = [data objectForKey:@"engine_num"];
+                NSString * purchasingDate = [data objectForKey:@"register_date"];
+                NSString * issuedate = [data objectForKey:@"issue_date"];
+                
                 text = [NSString stringWithFormat:@"%@ %@\r\r%@",name,plateno,vin];
                 
                 [parm setValue:plateno forKey:@"plateNo"];
@@ -476,6 +479,10 @@
                 [parm setValue:vin forKey:@"vin"];
                 [parm setValue:vehicletype forKey:@"type"];
                 [parm setValue:model forKey:@"vehicleSpec"];
+                [parm setValue:@[driverLicenceFirstUrls] forKey:@"driverLicenceFirstUrls"];
+                [parm setValue:engineNumber forKey:@"engineNumber"];
+                [parm setValue:purchasingDate forKey:@"purchasingDate"];
+                [parm setValue:address forKey:@"address"];
             }
                 break;
             case RecognizeTypeVIN:

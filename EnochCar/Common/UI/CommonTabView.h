@@ -11,9 +11,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 
-
-
-
 @class CommonTabView;
 
 @protocol CommonTabViewDelegate <NSObject>
@@ -29,13 +26,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak, nullable) id <CommonTabViewDelegate> delegate;
 @property(nullable, nonatomic, copy) NSArray<CommonTabItem *> *items;
-
+@property(nonatomic,readwrite,assign)BOOL needSeparation;    /* 是否需要分隔线*/
 -(instancetype)initWithFrame:(CGRect)frame target:(id<CommonTabViewDelegate>)delegate;
 -(void)setNormalColor:(UIColor *)normalColor;
 -(void)setSelectedColor:(UIColor *)selectedColor;
 -(void)setFont:(UIFont *)font;
+-(void)setSelectedFont:(UIFont *)font;
 -(void)setIndex:(NSInteger)index;
 -(NSInteger)index;
+
+
 @end
 
 NS_ASSUME_NONNULL_END

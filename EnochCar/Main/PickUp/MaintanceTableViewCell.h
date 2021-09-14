@@ -22,12 +22,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MaintanceTableViewCell : UITableViewCell
 @property(nonatomic,readwrite,strong)UINavigationController * navigationController;
 @property(nonatomic,readwrite,strong)UITableView * tableview;
-//@property(nonatomic, readwrite, copy) NSMutableArray * maintances;//查询到的项目列表
 @property(nonatomic, readwrite, copy) NSMutableArray * workingteams;
 @property(nonatomic, readwrite, copy) NSMutableArray * chargeMethods;
 @property (weak, nonatomic)id <MaintanceTableViewCellDelegate>delagate;
 @property (assign, nonatomic)NSInteger index;
--(BOOL)isExtend;
+//-(BOOL)isExtend;
 
 //-(void)config:(NSDictionary*)data;
 -(void)setCurMaintance:(NSMutableDictionary *)curMaintance;

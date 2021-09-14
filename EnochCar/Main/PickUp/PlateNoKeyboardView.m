@@ -69,10 +69,10 @@
     
     int row = 4;
     int column = 10;
-    CGFloat btnY = 10;
-    CGFloat btnX = 5;
+    CGFloat btnY = 12;
+    CGFloat btnX = 3;
     CGFloat maginR = 5;
-    CGFloat maginC = 10;
+    CGFloat maginC = 12;
     CGFloat btnW = (size.width - maginR * (column -1) - 2 * btnX)/column;
 //    CGFloat btnH = (_provinceView.frame.size.height - maginC * (row - 1) - 6) / row;
     CGFloat btnH = (_provinceView.frame.size.height - maginC * row - 24) / row;
@@ -110,7 +110,7 @@
         [btn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         
         [btn setTitle:self.array1[i] forState:UIControlStateNormal];
-        btn.layer.cornerRadius = 3;
+        btn.layer.cornerRadius = 4.6;
         btn.layer.masksToBounds = YES;
         btn.tag = i;
         [btn addTarget:self action:@selector(btn1Click:) forControlEvents:UIControlEventTouchUpInside];

@@ -7,7 +7,7 @@
 
 #import "MaintanceViewController.h"
 #import "AddMaintanceViewController.h"
-#import "ItemCollectionViewCell.h"
+//#import "ItemCollectionViewCell.h"
 #import "CommonTool.h"
 #import "NetWorkAPIManager.h"
 #import "MaintanceTableViewCell.h"
@@ -35,7 +35,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    self.midTitle = @"项目";
+    self.midTitle = @"选择项目";
 //    [self setTitle:@"项目"];
     
     UIButton * addBtn = [[UIButton alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height - 74, self.view.bounds.size.width, 74)];
@@ -199,17 +199,13 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    
     return self.maintances.count;
-    
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"TableViewCell"];
     cell.textLabel.text = [[self.maintances objectAtIndex:indexPath.row] objectForKey:@"name"];
-    
-    
     return cell;
 }
 

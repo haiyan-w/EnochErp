@@ -22,6 +22,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,readwrite,strong) NSString * userName;
 @property(nonatomic,readwrite,strong) NSString * headUrl;
 
+//系统设置
+@property(nonatomic,readwrite,assign) BOOL needEngineer;//是否必须派工技师
+//@property(nonatomic,readwrite,strong) NSNumber * hour;//设置的默认工时
+@property(nonatomic,readwrite,strong) NSString * price;//设置的默认单价
+//@property(nonatomic,readwrite,strong) NSDictionary * chargeMethod;//设置的默认项目计价方式
+@property(nonatomic,readwrite,strong) NSString * chargeMethodCode;//设置的默认项目计价方式
 +(instancetype)defaultManager;
 
 -(void)application:(NSDictionary *)info Success:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
@@ -125,6 +131,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)queryMaintenance:(NSString*)searchStr success:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
            failure:(nullable void (^)(NSURLSessionDataTask * _Nullable task, NSError *error))failure;
+
+-(void)queryAdvisorSuccess:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
+           Failure:(nullable void (^)(NSURLSessionDataTask * _Nullable task, NSError *error))failure;
+
 //获取客户类型
 //-(void)lookupRole;
 //https://enocloudd.enoch-car.com/enocloud/common/maintenance/category?pagingEnabled=false

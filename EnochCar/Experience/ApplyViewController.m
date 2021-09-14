@@ -110,6 +110,11 @@
             [weakself clearData];
             [weakself.view showHint:@"您已申请成功，稍后我们会电话联系您"];
             
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                [weakself back];
+            });
+            
+            
         } Failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             [self.view showHint:@"申请失败，服务器异常或网络异常"];
         }];

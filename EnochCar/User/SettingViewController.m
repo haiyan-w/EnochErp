@@ -59,6 +59,9 @@
     NetWorkAPIManager * manager = [NetWorkAPIManager defaultManager];
     [manager logoutsuccess:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:USERDEFAULTS_ACCOUNT];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:USERDEFAULTS_PASSWORD];
+        
         NSNotificationCenter * notify = [NSNotificationCenter defaultCenter];
         [notify postNotificationName:NOTIFICATION_LOGOUT_SUCCESS object:NULL userInfo:NULL];
         
@@ -96,8 +99,7 @@
         [self.navigationController pushViewController:modifyCtrl animated:YES];
         
     }
-    
-    
+
 }
 
 @end

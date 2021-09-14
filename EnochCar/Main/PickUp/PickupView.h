@@ -43,8 +43,10 @@ typedef enum{
 -(void)createCustom;
 -(void)createVehicle;
 -(void)createService;
--(void)createServicesuccess:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
-                    failure:(nullable void (^)(NSURLSessionDataTask * _Nullable task, NSError *error))failure;
+//-(void)createServicesuccess:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
+//                    failure:(nullable void (^)(NSURLSessionDataTask * _Nullable task, NSError *error))failure;
+-(void)createServiceWith:(NSDictionary * )advisor success:(nullable void (^)(NSURLSessionDataTask *task, id _Nullable responseObject))success
+                 failure:(nullable void (^)(NSURLSessionDataTask * _Nullable task, NSError *error))failure;
 
 //保存上一次未完成的信息
 -(void)saveLastSeviceInfo;

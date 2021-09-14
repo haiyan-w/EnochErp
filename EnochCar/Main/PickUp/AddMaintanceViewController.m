@@ -183,7 +183,12 @@
         NSDictionary * dic = responseObject;
         NSArray * array = [dic objectForKey:@"data"];
         [_categorys removeAllObjects];
-        [_categorys addObjectsFromArray:array];
+        
+        for (NSDictionary * dic in array) {
+            if (![[dic objectForKey:@"name"] isEqualToString:@"以诺行喷涂"]) {
+                [_categorys addObject:dic];
+            }
+        }
 
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         

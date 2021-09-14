@@ -13,7 +13,7 @@
 @property(nonatomic,readwrite,strong)UIColor * normalColor;
 @property(nonatomic,readwrite,strong)UIColor * selectedColor;
 @property(nonatomic,readwrite,strong)UIFont * font;
-
+@property(nonatomic,readwrite,strong)UIFont * selectedFont;
 @end
 
 
@@ -52,10 +52,19 @@
     _font = font;
 }
 
+-(void)setSelectedFont:(UIFont *)selectedFont
+{
+    _selectedFont = selectedFont;
+}
+
 -(void)setItems:(NSArray<CommonTabItem *> *)items
 {
     _items = items;
     _btnArray = [NSMutableArray array];
+    
+    for (UIView * subview in self.subviews) {
+        [subview removeFromSuperview];
+    }
     
     NSInteger width = self.bounds.size.width/items.count;
     NSInteger height = self.bounds.size.height;
@@ -68,8 +77,17 @@
         [btn addTarget:self action:@selector(click:) forControlEvents:UIControlEventTouchUpInside];
         [_btnArray addObject:btn];
         [self addSubview:btn];
+        
+        if (self.needSeparation) {
+            if ((items.count > 1) && (i != items.count-1)) {
+                UIImageView * separator = [[UIImageView alloc] initWithFrame:CGRectMake(btn.frame.origin.x + btn.frame.size.width, (self.frame.size.height - 12)/2, 1, 12)];
+                [separator   setImage:[UIImage imageNamed:@"separator"]];
+                [self addSubview:separator];
+            }
+        }
+   
     }
-    self.index  = 0;
+    self.index  = self.index;
 }
 
 
@@ -96,6 +114,8 @@
                 }else {
                     [btn setImage:[UIImage imageNamed:item.imageName] forState:UIControlStateNormal];
                 }
+            }else if (item.style == CommonTabItemStyleAttrText){
+                [btn setAttributedTitle:item.selectedAttrTitle forState:UIControlStateNormal];
             }
         }else {//未选中
             if (item.style == CommonTabItemStyleText) {
@@ -104,6 +124,9 @@
                 btn.titleLabel.font = self.font;
             }else if(item.style == CommonTabItemStyleImage){
                 [btn setImage:[UIImage imageNamed:item.imageName] forState:UIControlStateNormal];
+            }else if (item.style == CommonTabItemStyleAttrText){
+
+                [btn setAttributedTitle:item.attrTitle forState:UIControlStateNormal];
             }
         }
     }

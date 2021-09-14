@@ -33,7 +33,9 @@ typedef NS_ENUM(NSInteger, RecognizeType) {
 //#define NOTIFICATION_NETWORK_OFF    @"networkOffNotification"
 //#define NOTIFICATION_NETWORK_ON    @"networkOnNotification"
 
-
+//userdefaults
+#define USERDEFAULTS_ACCOUNT @"userAccount"
+#define USERDEFAULTS_PASSWORD @"userPassword"
 
 //text
 #define TEXT_NETWORKOFF @"(无网络)"

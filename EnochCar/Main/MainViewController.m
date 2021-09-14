@@ -23,6 +23,7 @@
 #import "NetWorkOffView.h"
 
 #define TAG_TF_SEARCH  1111
+#define TAG_TF_ADVISOR  1112
 
 #define HEAD_HEIGHT  212
 #define SPACE_LEFT  20
@@ -31,6 +32,9 @@
 
 @property(nonatomic,readwrite,strong) UIImageView * headImg;
 @property(nonatomic,readwrite,strong) UILabel * nameLab;
+@property(nonatomic,readwrite,strong) UIView * advisorView;
+@property(nonatomic,readwrite,strong) UITextField * advisorTF;
+@property(nonatomic,readwrite,strong) UIButton * advisorBtn;
 @property(nonatomic,readwrite,strong) UITextField * searchTF;
 
 @property(nonatomic,readwrite,strong) CommonTabView * tabView;
@@ -48,6 +52,9 @@
 @property(nonatomic,readwrite,strong) UIButton * orderBtn;
 
 @property(nonatomic,readwrite,strong) NSDictionary * curData;
+
+@property(nonatomic,readwrite,strong) NSMutableArray * advisorArray;
+@property(nonatomic,readwrite,strong) NSDictionary * curAdvisor;
 @end
 
 @implementation MainViewController
@@ -65,12 +72,42 @@
     [_headImg setImage:[UIImage imageNamed:@"headImg"]];
     [self.view addSubview:_headImg];
     
-    _nameLab = [[UILabel alloc] initWithFrame:CGRectMake(left, top, 200, 20)];
+    NSString * name = [NetWorkAPIManager defaultManager].userName;
+    NSMutableAttributedString * attrname = [[NSMutableAttributedString alloc] initWithString:name];
+    [attrname addAttributes:[NSDictionary dictionaryWithObject:[UIFont systemFontOfSize:14 weight:UIFontWeightSemibold] forKey:NSFontAttributeName] range:NSMakeRange(0, name.length)];
+    CGRect rect = [attrname boundingRectWithSize:CGSizeMake(60, 22) options:NSStringDrawingUsesLineFragmentOrigin context:nil];
+    
+    _nameLab = [[UILabel alloc] initWithFrame:CGRectMake(left, top, rect.size.width, rect.size.height)];
     _nameLab.text = [NetWorkAPIManager defaultManager].userName;
     _nameLab.textColor = [UIColor whiteColor];
     _nameLab.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
     _nameLab.textAlignment = NSTextAlignmentLeft;
     [_headImg addSubview:_nameLab];
+    
+    _advisorView = [[UIView alloc] initWithFrame:CGRectMake(_nameLab.frame.origin.x + _nameLab.frame.size.width + 24, _nameLab.frame.origin.y - 2, 108, 24)];
+    _advisorView.backgroundColor = [UIColor colorWithRed:106/255.0 green:112/255.0 blue:127/255.0 alpha:1];
+    _advisorView.layer.cornerRadius = 2.0;
+    [_headImg addSubview:_advisorView];
+    UIImageView * advisorIcon = [[UIImageView alloc] initWithFrame:CGRectMake(8, 6, 12, 12)];
+    [advisorIcon setImage:[UIImage imageNamed:@"icon_advisor"]];
+    [_advisorView addSubview:advisorIcon];
+    UIImageView * dropIcon = [[UIImageView alloc] initWithFrame:CGRectMake(_advisorView.frame.size.width-24, 0, 24, 24)];
+    [dropIcon setImage:[UIImage imageNamed:@"icon_drop"]];
+    [_advisorView addSubview:dropIcon];
+    
+    NSInteger orgX = advisorIcon.frame.origin.x + advisorIcon.frame.size.width + 8;
+    _advisorTF = [[UITextField alloc] initWithFrame:CGRectMake(orgX, 0, _advisorView.frame.size.width - orgX - dropIcon.frame.size.width - 8, _advisorView.frame.size.height)];
+    _advisorTF.backgroundColor = [UIColor clearColor];
+    _advisorTF.text = @"指派谁？";
+    _advisorTF.font = [UIFont systemFontOfSize:11];
+    _advisorTF.tag = TAG_TF_ADVISOR;
+    _advisorTF.textColor = [UIColor colorWithRed:208/255.0 green:212/255.0 blue:219/255.0 alpha:1];
+    [_advisorView addSubview:_advisorTF];
+    
+    _advisorBtn = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, _advisorView.frame.size.width, _advisorView.frame.size.height)];
+    _advisorBtn.backgroundColor = [UIColor clearColor];
+    [_advisorBtn addTarget:self action:@selector(advisorBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+    [_advisorView addSubview:_advisorBtn];
     
     UIView * searchView = [[UIView alloc] initWithFrame:CGRectMake(left, (_nameLab.frame.origin.y + _nameLab.bounds.size.height + space), (self.view.bounds.size.width - 2*left), 36)];
     searchView.layer.cornerRadius = 3;
@@ -129,13 +166,20 @@
     [_btnView addSubview:_createBtn];
 
     [self addGestureRecognizer];
+    
+    [self queryAdvisor];
 }
 
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
     _pickupView.navCtrl = self.navigationController;
-    _nameLab.text = [NetWorkAPIManager defaultManager].userName;
+    
+    if (self.curIndex == 1) {
+        [_repaireView loadData];
+    }else  if (self.curIndex == 2){
+        [_settlementView loadData];
+    }
 }
 
 -(void)networkStatusChanged:(AFNetworkReachabilityStatus)status
@@ -279,14 +323,15 @@
     
 }
 
+
+- (void)advisorBtnClicked:(id)sender
+{
+    [self selectAdvisor];
+}
+
 - (void)scanBtnClicked:(id)sender
 {
     [self scan];
-//    if (self.isNetworkOn) {
-//        [self scan];
-//    }else {
-//        [self.view showHint:[NSString stringWithFormat:@"%@",TEXT_NETWORKOFF_HINT]];
-//    }
 }
 
 - (void)createBtnClick:(id)sender
@@ -312,7 +357,11 @@
 - (void)createService
 {
     __weak MainViewController * weakself = self;
-    [_pickupView createServicesuccess:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    if (!self.curAdvisor) {
+        [self.view showHint:@"请选择服务顾问"];
+        return;
+    }
+    [_pickupView createServiceWith:self.curAdvisor success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         dispatch_async(dispatch_get_main_queue(), ^{
             UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"开单完成，是否进行维修"
                                                                                message:@""
@@ -366,6 +415,60 @@
     [self.navigationController pushViewController:maintanceCtrl animated:YES];
 }
 
+- (void)selectAdvisor
+{
+    [self resign];
+    
+    if (!self.advisorArray) {
+        __weak MainViewController * weakself = self;
+        [[NetWorkAPIManager defaultManager] queryAdvisorSuccess:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            
+            NSDictionary * resp = responseObject;
+            NSArray * array = [resp objectForKey:@"data"];
+
+            if (weakself.advisorArray) {
+                [weakself.advisorArray removeAllObjects];
+            }else {
+                weakself.advisorArray = [NSMutableArray array];
+            }
+            
+            NSInteger userID = [[NetWorkAPIManager defaultManager] userID];
+            
+            for (NSDictionary * dic in array) {
+                NSDictionary * user = [dic objectForKey:@"user"];
+                [weakself.advisorArray addObject:user];
+                if (userID == [[user objectForKey:@"id"] integerValue]) {
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        weakself.curAdvisor = user;
+                    });
+                }
+            }
+            
+            [weakself showAdvisorPopView];
+            
+        } Failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+
+        }];
+        
+    }else {
+        [self showAdvisorPopView];
+    }
+    
+    
+}
+
+-(void)showAdvisorPopView
+{
+    NSMutableArray * popStrings = [NSMutableArray array];
+    for (NSDictionary * dic in self.advisorArray) {
+        [popStrings addObject:[dic objectForKey:@"name"]];
+    }
+    PopViewController * popCtrl = [[PopViewController alloc] initWithTitle:@"服务顾问" Data:popStrings];
+    popCtrl.delegate = self;
+    [popCtrl showIn:self.navigationController];
+}
+
 - (void)scan
 {
     RecognizeViewController * recognizeCtrl = [[RecognizeViewController alloc] initWithType:RecognizeTypePlateNO];
@@ -377,6 +480,50 @@
 {
     [self.tabView setIndex:0];
     [_pickupView configData:data];
+}
+
+-(void)queryAdvisor
+{
+    __weak MainViewController * weakself = self;
+    [[NetWorkAPIManager defaultManager] queryAdvisorSuccess:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSDictionary * resp = responseObject;
+        NSArray * array = [resp objectForKey:@"data"];
+
+        if (weakself.advisorArray) {
+            [weakself.advisorArray removeAllObjects];
+        }else {
+            weakself.advisorArray = [NSMutableArray array];
+        }
+        
+        NSInteger userID = [[NetWorkAPIManager defaultManager] userID];
+        
+        for (NSDictionary * dic in array) {
+            NSDictionary * user = [dic objectForKey:@"user"];
+            [weakself.advisorArray addObject:user];
+            if (userID == [[user objectForKey:@"id"] integerValue]) {
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    weakself.curAdvisor = user;
+                    weakself.advisorBtn.enabled = NO;
+                    weakself.advisorTF.enabled = NO;
+                });
+            }
+        }
+        
+        
+    } Failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+
+    }];
+    
+    
+    
+}
+
+-(void)setCurAdvisor:(NSDictionary *)curAdvisor
+{
+    _curAdvisor = curAdvisor;
+    self.advisorTF.text = [_curAdvisor objectForKey:@"name"];
 }
 
 -(SearchResultView*)searchResultView
@@ -436,6 +583,12 @@
 -(void)recognize:(RecognizeViewController*)recognizeCtrl withResult:(NSDictionary*)data
 {
     [self configData:data];
+}
+
+#pragma popview delegate
+-(void)popview:(UIViewController *)popview disSelectRowAtIndex:(NSInteger)index
+{
+    self.curAdvisor = [self.advisorArray objectAtIndex:index];
 }
 
 #pragma
