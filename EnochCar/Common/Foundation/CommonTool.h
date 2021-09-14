@@ -59,6 +59,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)validateFloatNumber:(NSString*)number;
 
 +(NSDictionary *)getErrorInfo:(NSError *_Nonnull)error;
+
++(NSString *)getErrorMessage:(NSError *_Nonnull)error;
 @end
 
 NS_ASSUME_NONNULL_END

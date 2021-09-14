@@ -4,6 +4,7 @@
 //
 //  Created by HAIYAN on 2021/5/7.
 //
+#import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import "RecognizeViewController.h"
 #import "MainViewController.h"
@@ -11,11 +12,12 @@
 #import "RecordListViewController.h"
 #import "CommonTabView.h"
 #import "CommonTool.h"
+#import "UIImage+FixOritention.h"
 #import <sys/utsname.h>
 
-@interface RecognizeViewController ()<UITabBarDelegate,AVCaptureMetadataOutputObjectsDelegate,CommonTabViewDelegate>
+@interface RecognizeViewController ()<UITabBarDelegate,AVCapturePhotoCaptureDelegate,CommonTabViewDelegate>//AVCaptureMetadataOutputObjectsDelegate
 @property(nonatomic,readwrite,strong)AVCaptureVideoPreviewLayer * previewLayer;
-@property(nonatomic,readwrite,strong) UIView * previewView;
+//@property(nonatomic,readwrite,strong) UIView * previewView;
 @property(nonatomic,readwrite,strong)UIImageView * scanBox;
 @property(nonatomic,readwrite,strong) AVCaptureSession * session;
 @property(nonatomic,readwrite,strong) AVCapturePhotoOutput * photoOutput;
@@ -274,14 +276,13 @@
         return;
     }
     AVCaptureMetadataOutput * output = [[AVCaptureMetadataOutput alloc] init];
-    _photoOutput = [[AVCapturePhotoOutput alloc] init];
-    
     [output setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
-    output.rectOfInterest = CGRectMake(0.05, 0.2, 0.7, 0.6);
+//        output.rectOfInterest = CGRectMake(0.05, 0.2, 0.7, 0.6);
+//        output.rectOfInterest = CGRectMake(0.05, 0.2, 0.7, 0.6);
+    
+    _photoOutput = [[AVCapturePhotoOutput alloc] init];
     self.session = [[AVCaptureSession alloc] init];
-        
     [self.session addInput:input];
-        
     [self.session addOutput:_photoOutput];
 
     _previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
@@ -401,29 +402,37 @@
 -(void)takePicture
 {
     _captureBtn.hidden = YES;
-    AVCapturePhotoSettings *set = [AVCapturePhotoSettings photoSettings];
+    NSDictionary *setDic = @{AVVideoCodecKey:@"jpeg"};//AVVideoQualityKey:[NSNumber numberWithFloat:0.5]
+    AVCapturePhotoSettings *set = [AVCapturePhotoSettings photoSettingsWithFormat:setDic];
+//    set.previewPhotoFormat = @{kCVPixelBufferWidthKey: [NSNumber numberWithFloat:self.previewLayer.frame.size.width*[UIScreen mainScreen].scale],kCVPixelBufferHeightKey:[NSNumber numberWithFloat:self.previewLayer.frame.size.height*[UIScreen mainScreen].scale]};
     [_photoOutput capturePhotoWithSettings:set delegate:self];
     self.resultLab.text = @"识别中...";
         
 }
 
 //拍照识别
--(void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhoto:(AVCapturePhoto *)photo error:(NSError *)error  API_AVAILABLE(ios(11.0)) {
-    if (!error) {
-        // 使用该方式获取图片，可能图片会存在旋转问题，在使用的时候调整图片即可
-        NSData *data = [photo fileDataRepresentation];
-        _curImage = [UIImage imageWithData:data];
-        [_curPhoto setImage:_curImage];
-        _curPhoto.hidden = NO;
-        NSData *imgData = UIImageJPEGRepresentation(_curImage, 1);
-        [self recognize:imgData needQuery:!_onlyVin];
-    }
-}
+//-(void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhoto:(AVCapturePhoto *)photo error:(NSError *)error  API_AVAILABLE(ios(11.0)) {
+//    if (!error) {
+//        // 使用该方式获取图片，可能图片会存在旋转问题，在使用的时候调整图片即可
+//        NSData *data = [photo fileDataRepresentation];
+//        _curImage = [UIImage imageWithData:data];
+//        [_curPhoto setImage:_curImage];
+//        _curPhoto.hidden = NO;
+//        NSData *imgData = UIImageJPEGRepresentation(_curImage, 1);
+//        [self recognize:imgData needQuery:!_onlyVin];
+//    }
+//}
 - (void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhotoSampleBuffer:(nullable CMSampleBufferRef)photoSampleBuffer previewPhotoSampleBuffer:(nullable CMSampleBufferRef)previewPhotoSampleBuffer resolvedSettings:(AVCaptureResolvedPhotoSettings *)resolvedSettings bracketSettings:(nullable AVCaptureBracketedStillImageSettings *)bracketSettings error:(nullable NSError *)error
 {
     if (!error) {
         NSData *data = [AVCapturePhotoOutput JPEGPhotoDataRepresentationForJPEGSampleBuffer:photoSampleBuffer previewPhotoSampleBuffer:previewPhotoSampleBuffer];
-        _curImage = [UIImage imageWithData:data];
+        UIImage * image = [UIImage imageWithData:data];
+        CGFloat scale = [UIScreen mainScreen].scale;
+        CGRect rect = self.previewLayer.frame;
+        UIImage * clipimage = [self clipImage:image withSize:CGSizeMake(rect.size.width*scale, rect.size.height*scale)];
+
+        _curImage = clipimage;
+
         [_curPhoto setImage:_curImage];
         _curPhoto.hidden = NO;
 //        UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
@@ -432,6 +441,50 @@
     }
 }
 
+//居中裁剪图片
+-(UIImage *)clipImage:(UIImage *)image withSize:(CGSize)size
+{
+    CGFloat width = size.width;
+    CGFloat height = size.height;
+    
+    CGFloat x = (image.size.width - size.width)/2;
+    CGFloat y = (image.size.height - size.height)/2;
+    
+    CGRect croprect = CGRectMake(floor(x), floor(y), round(width), round(height));
+    
+    UIImage *toCropImage = [image fixOrientation];// 纠正方向
+
+    CGImageRef cgImage = CGImageCreateWithImageInRect(toCropImage.CGImage, croprect);
+        
+    UIImage *cropped = [UIImage imageWithCGImage:cgImage];
+        
+    CGImageRelease(cgImage);
+        
+    return cropped;
+    
+}
+
+-(UIImage *)imageFromImage:(UIImage *)image inRect:(CGRect)rect
+{
+    CGFloat x = rect.origin.x;
+    CGFloat y = rect.origin.y;
+        
+    CGFloat width = rect.size.width;
+        
+    CGFloat height = rect.size.height;
+        
+    CGRect croprect = CGRectMake(floor(x), floor(y), round(width), round(height));
+        
+    UIImage *toCropImage = [image fixOrientation];// 纠正方向
+
+    CGImageRef cgImage = CGImageCreateWithImageInRect(toCropImage.CGImage, croprect);
+        
+    UIImage *cropped = [UIImage imageWithCGImage:cgImage];
+        
+    CGImageRelease(cgImage);
+        
+    return cropped;
+}
 
 -(void)recognize:(NSData *)imgData needQuery:(BOOL)needquery
 {

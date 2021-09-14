@@ -6,14 +6,23 @@
 //
 
 #import "ComplexBox.h"
+#import "NetWorkAPIManager.h"
+#import "PopViewController.h"
 
-@interface ComplexBox()
+@interface ComplexBox()<PopViewDelagate>
 @property (nonatomic,strong) UITextField * textField;
 @property (nonatomic,strong) UIButton * selectBtn;
 @property (nonatomic,assign) ComplexBoxMode mode;
+@property (nonatomic,assign) QueryMode queryMode;
+@property (nonatomic,strong) NSString * hint;
+@property (nonatomic,strong) NSString * lookup;
+@property (nonatomic,strong) NSString * popTitle;
 @property (nonatomic,strong) UIImageView * rightImage;
 @property (nonatomic,strong)CAShapeLayer *borderLayer;
 @property (nonatomic,strong) UIColor * borderColor;
+
+@property (nonatomic,strong) NSArray * messages;
+@property (nonatomic,strong) NSDictionary * selectedItem;
 @end
 
 @implementation ComplexBox
@@ -38,6 +47,40 @@
         self.layer.cornerRadius = 4;
         self.layer.masksToBounds = YES;
         self.textField.returnKeyType = UIReturnKeyDone;
+    }
+    return self;
+}
+
+-(instancetype)initWithFrame:(CGRect)frame mode:(ComplexBoxMode)mode hint:(NSString *)hint  popTitle:(NSString *)popTitle
+{
+    self= [super initWithFrame:frame];
+    if (self) {
+        self.mode = mode;
+        self.queryMode = ComplexBoxQueryHint;
+        self.enabled = YES;
+        self.backgroundColor = [UIColor whiteColor];
+        self.layer.cornerRadius = 4;
+        self.layer.masksToBounds = YES;
+        self.textField.returnKeyType = UIReturnKeyDone;
+        self.hint = hint;
+        self.popTitle = popTitle;
+    }
+    return self;
+}
+
+-(instancetype)initWithFrame:(CGRect)frame mode:(ComplexBoxMode)mode lookup:(NSString *)lookup  popTitle:(NSString *)popTitle
+{
+    self= [super initWithFrame:frame];
+    if (self) {
+        self.mode = mode;
+        self.queryMode = ComplexBoxQueryLookup;
+        self.enabled = YES;
+        self.backgroundColor = [UIColor whiteColor];
+        self.layer.cornerRadius = 4;
+        self.layer.masksToBounds = YES;
+        self.textField.returnKeyType = UIReturnKeyDone;
+        self.lookup = lookup;
+        self.popTitle = popTitle;
     }
     return self;
 }
@@ -71,6 +114,11 @@
             break;
     }
     [self layoutSubviews];
+}
+
+-(void)setHint:(NSString*)hint
+{
+    _hint = hint;
 }
 
 -(void)layoutSubviews
@@ -137,6 +185,11 @@
         [_selectBtn addTarget:self action:@selector(selectBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _selectBtn;
+}
+
+-(NSDictionary*)getSelectedItem
+{
+    return _selectedItem;
 }
 
 -(void)setPlaceHolder:(NSString *)placeHolder
@@ -238,8 +291,17 @@
 
 -(void)selectBtnClick:(id)sender
 {
+    [self resign];
+    
     if (self.selectBlock) {
         self.selectBlock();
+        return;
+    }
+    
+    if (!self.messages) {
+        [self queryMessages];
+    }else {
+        [self showPopView];
     }
 }
 
@@ -247,6 +309,72 @@
 {
     [self.textField addTarget:target action:action forControlEvents:controlEvents];
     
+}
+
+-(void)queryMessages
+{
+    __weak ComplexBox * weakself = self;
+    if (self.queryMode == ComplexBoxQueryLookup) {
+        [[NetWorkAPIManager defaultManager]  lookup:self.lookup success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSDictionary * dic = responseObject;
+            NSArray * array = [dic objectForKey:@"data"];
+            self.messages = [NSArray arrayWithArray:array];
+            [weakself showPopView];
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            
+        }];
+    }else if (self.queryMode == ComplexBoxQueryHint) {
+        [[NetWorkAPIManager defaultManager]  hint:self.hint success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSDictionary * dic = responseObject;
+            NSArray * array = [dic objectForKey:@"data"];
+            self.messages = [NSArray arrayWithArray:array];
+            [weakself showPopView];
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            
+        }];
+    }
+}
+
+-(void)showPopView
+{
+    NSMutableArray * popStrings = [NSMutableArray array];
+    if (self.queryMode == ComplexBoxQueryLookup) {
+        for (NSDictionary * ainfo in self.messages) {
+            NSString * str = [ainfo objectForKey:@"message"];
+            [popStrings addObject:str];
+        }
+    }else if (self.queryMode == ComplexBoxQueryHint)
+    {
+        for (NSDictionary * ainfo in self.messages) {
+            NSString * str = [ainfo objectForKey:@"name"];
+            [popStrings addObject:str];
+        }
+    }
+    
+    PopViewController * popCtrl = [[PopViewController alloc] initWithTitle:self.popTitle Data:popStrings];
+    popCtrl.delegate = self;
+    
+    [[UIApplication sharedApplication].delegate.window.rootViewController addChildViewController:popCtrl];
+    [[UIApplication sharedApplication].delegate.window.rootViewController.view addSubview:popCtrl.view];
+    
+}
+
+-(void)popview:(UIViewController *)popview disSelectRowAtIndex:(NSInteger)index
+{
+    self.selectedItem = [self.messages objectAtIndex:index];
+    if (self.queryMode == ComplexBoxQueryLookup) {
+        self.textField.text = [self.selectedItem objectForKey:@"message"];
+    }else if (self.queryMode == ComplexBoxQueryHint) {
+        self.textField.text = [self.selectedItem objectForKey:@"name"];
+    }
+    
+}
+
+-(void)resign
+{
+    UIWindow * keyWindow = [[UIApplication sharedApplication] keyWindow];
+    UIView * firstResponder = [keyWindow performSelector:@selector(firstResponder)];
+    [firstResponder resignFirstResponder];
 }
 
 @end

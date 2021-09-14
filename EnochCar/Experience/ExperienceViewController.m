@@ -126,11 +126,32 @@
     [_View2 addSubview:_serviceBanner];
     
     CGFloat labW = _View2.frame.size.width - left - right;
-    NSString * view2labStr = BANNER_SEVICE_TEXT_1;
-    NSMutableAttributedString * attributedString1 = [[NSMutableAttributedString alloc] initWithString:view2labStr];
-    [attributedString1 addAttributes:attributes range:NSMakeRange(0, [view2labStr length])];
-    CGRect labRect = [attributedString1 boundingRectWithSize:CGSizeMake(labW, 200) options:NSStringDrawingUsesLineFragmentOrigin context:nil];
     
+    // 分别计算三段文字的高度，取最大
+    NSString * view2labStr1 = BANNER_SEVICE_TEXT_1;
+    NSMutableAttributedString * attributedString1 = [[NSMutableAttributedString alloc] initWithString:view2labStr1];
+    [attributedString1 addAttributes:attributes range:NSMakeRange(0, [view2labStr1 length])];
+    CGRect rect1 = [attributedString1 boundingRectWithSize:CGSizeMake(labW, 200) options:NSStringDrawingUsesLineFragmentOrigin context:nil];
+    
+    NSString * view2labStr2 = BANNER_SEVICE_TEXT_2;
+    NSMutableAttributedString * attributedString2 = [[NSMutableAttributedString alloc] initWithString:view2labStr2];
+    [attributedString2 addAttributes:attributes range:NSMakeRange(0, [view2labStr2 length])];
+    CGRect rect2 = [attributedString2 boundingRectWithSize:CGSizeMake(labW, 200) options:NSStringDrawingUsesLineFragmentOrigin context:nil];
+    
+    NSString * view2labStr3 = BANNER_SEVICE_TEXT_3;
+    NSMutableAttributedString * attributedString3 = [[NSMutableAttributedString alloc] initWithString:view2labStr3];
+    [attributedString3 addAttributes:attributes range:NSMakeRange(0, [view2labStr3 length])];
+    CGRect rect3 = [attributedString3 boundingRectWithSize:CGSizeMake(labW, 200) options:NSStringDrawingUsesLineFragmentOrigin context:nil];
+    
+    CGRect labRect = rect1;
+    
+    if (rect2.size.height > rect1.size.height) {
+        labRect = rect2;
+    }
+    if (rect3.size.height > rect2.size.height) {
+        labRect = rect3;
+    }
+
     _view2Lab = [[UILabel alloc] initWithFrame:CGRectMake(left, _serviceBanner.frame.origin.y + _serviceBanner.frame.size.height + space, labRect.size.width, labRect.size.height)];
     _view2Lab.font = longLabFont;
     _view2Lab.textColor = titleColor;

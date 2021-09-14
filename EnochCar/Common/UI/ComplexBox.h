@@ -14,6 +14,11 @@ typedef enum{
     ComplexBoxEditAndSelect
 }ComplexBoxMode;
 
+typedef enum{
+    ComplexBoxQueryNull,
+    ComplexBoxQueryHint,
+    ComplexBoxQueryLookup
+}QueryMode;
 
 typedef void(^ComplexBoxSelectBlock)(void);
 
@@ -29,6 +34,8 @@ typedef void(^ComplexBoxSelectBlock)(void);
 @property (nonatomic,strong) UIFont * font;
 
 -(instancetype)initWithFrame:(CGRect)frame mode:(ComplexBoxMode)mode;
+-(instancetype)initWithFrame:(CGRect)frame mode:(ComplexBoxMode)mode hint:(NSString *)hint  popTitle:(NSString *)popTitle;
+-(instancetype)initWithFrame:(CGRect)frame mode:(ComplexBoxMode)mode lookup:(NSString *)lookup  popTitle:(NSString *)popTitle;
 -(void)setMode:(ComplexBoxMode)mode;
 -(void)setText:(NSString*)text;
 -(NSString*)getText;
@@ -36,6 +43,7 @@ typedef void(^ComplexBoxSelectBlock)(void);
 - (void)addTarget:(nullable id)target action:(SEL)action forControlEvents:(UIControlEvents)controlEvents;
 -(void)setBorder:(BOOL)border;
 -(void)setBorderColor:(UIColor*)borderColor;
+-(NSDictionary*)getSelectedItem;
 @end
 
 NS_ASSUME_NONNULL_END

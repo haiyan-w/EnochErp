@@ -20,6 +20,7 @@
 
 @property (strong, nonatomic) IBOutlet UIView *detailVIew;
 @property (strong, nonatomic)NSMutableArray * detaiCells;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *nameLabWithConstraint;
 
 @property (strong, nonatomic)NSMutableDictionary * querySevice;//query接口获取的service数据
 @property (strong, nonatomic)NSMutableDictionary * curSevice;//当前工单详情
@@ -52,16 +53,13 @@
 
 -(void)configData:(NSMutableDictionary*)data
 {
-    if ([self.querySevice objectForKey:SEVICE_DETAIL])
-    {
-        NSDictionary * seviceDetail = [data objectForKey:SEVICE_DETAIL];
-        if (seviceDetail) {
-            _curSevice = [NSMutableDictionary dictionaryWithDictionary:seviceDetail];
-        }else {
-            _curSevice = nil;
-        }
-    }
     _querySevice = data;
+    NSDictionary * seviceDetail = [self.querySevice objectForKey:SEVICE_DETAIL];
+    if (seviceDetail){
+        _curSevice = [NSMutableDictionary dictionaryWithDictionary:seviceDetail];
+    }else {
+        _curSevice = nil;
+    }
     
     [_detaiCells removeAllObjects];
     for (UIView * subview in _detailVIew.subviews) {
@@ -87,8 +85,8 @@
     totalCost = maintenanceAmount + goodsAmount + managementFee +tax + accessoryFee +otherFee;
 
     NSString * customerName = [data objectForKey:@"customerName"];
-    NSString * cellphone = [data objectForKey:@"cellphone"];//
-    NSString * status = [[data objectForKey:@"status"] objectForKey:@"message"];//
+    NSString * cellphone = [data objectForKey:@"cellphone"];
+    NSString * status = [[data objectForKey:@"status"] objectForKey:@"message"];
     NSString * statusCode = [[data objectForKey:@"status"] objectForKey:@"code"];
     if ([statusCode isEqualToString:@"PD"]) {
         _extraBtn.hidden = YES;
@@ -104,6 +102,8 @@
     _serviceStateLab.text = status;
     [_categoryBtn setTitle:serviceCategoryName forState:UIControlStateNormal];
 
+    [self resizeLable];
+    
     NSInteger maintenanceCount = [[data objectForKey:@"maintenanceCount"] integerValue];
     [self setMaintenanceCount:maintenanceCount];
 
@@ -127,6 +127,14 @@
         [_detailVIew addSubview:cell];
         [_detaiCells addObject:cell];
     }
+    
+}
+
+-(void)resizeLable
+{
+    NSMutableAttributedString * attrStr = [[NSMutableAttributedString alloc] initWithString:self.nameAndCellphoneLab.text attributes:@{NSFontAttributeName:self.nameAndCellphoneLab.font}];
+    CGRect strRect = [attrStr boundingRectWithSize:CGSizeMake(108, 18) options:NSStringDrawingUsesLineFragmentOrigin context:nil];
+    self.nameLabWithConstraint.constant = strRect.size.width +2;
 }
 
 -(void)setMaintenanceCount:(NSInteger)count
@@ -151,7 +159,7 @@
 - (IBAction)telephoneBtnClicked:(id)sender {
     
     NSString * string = [NSString stringWithFormat:@"telprompt://%@",[_querySevice objectForKey:@"cellphone"]];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:string]];    
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:string]];
 }
 
 
@@ -166,7 +174,7 @@
       
         [weakself.querySevice setValue:data forKey:SEVICE_DETAIL];
         dispatch_async(dispatch_get_main_queue(), ^{
-//            [weakself configData:weakself.querySevice];
+            [weakself configData:weakself.querySevice];
             [weakself showPopView];
         });
 
@@ -231,23 +239,28 @@
 -(void)nextStep
 {
     if ([self check]) {
-        
-        NSInteger seviceID = [[self.curSevice objectForKey:@"id"] integerValue];
-        __weak SeviceTableViewCell * weakself = self;
-        
-        [[NetWorkAPIManager defaultManager] queryService:seviceID success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
 
-            NSDictionary * resp = responseObject;
-            NSMutableDictionary * seviceDic = [NSMutableDictionary dictionaryWithDictionary:[[resp objectForKey:@"data"] firstObject]];
-            [seviceDic setValue:[self getNextStep:[seviceDic objectForKey:@"status"]] forKey:@"nextStep"];
-            [seviceDic setValue:@"suggestions" forKey:@"suggestions"];//该项可设置是否必填，ios暂时没有填写项一律在此设置
-            [weakself updateSevice:seviceDic];
-            
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [weakself showAlertWithTitle:@"查询工单详情失败" message:@""];
-            });
-        }];
+        NSMutableDictionary * seviceDic = [NSMutableDictionary dictionaryWithDictionary:_curSevice];
+        [seviceDic setValue:[self getNextStep:[_curSevice objectForKey:@"status"]] forKey:@"nextStep"];
+        [seviceDic setValue:@"suggestions" forKey:@"suggestions"];//该项可设置是否必填，ios暂时没有填写项一律在此设置
+        [self updateSevice:seviceDic];
+        
+//        NSInteger seviceID = [[self.curSevice objectForKey:@"id"] integerValue];
+//        __weak SeviceTableViewCell * weakself = self;
+//
+//        [[NetWorkAPIManager defaultManager] queryService:seviceID success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//
+//            NSDictionary * resp = responseObject;
+//            NSMutableDictionary * seviceDic = [NSMutableDictionary dictionaryWithDictionary:[[resp objectForKey:@"data"] firstObject]];
+//            [seviceDic setValue:[self getNextStep:[seviceDic objectForKey:@"status"]] forKey:@"nextStep"];
+//            [seviceDic setValue:@"suggestions" forKey:@"suggestions"];//该项可设置是否必填，ios暂时没有填写项一律在此设置
+//            [weakself updateSevice:seviceDic];
+//
+//        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                [weakself showAlertWithTitle:@"查询工单详情失败" message:@""];
+//            });
+//        }];
         
     }else {
         [self showAlertWithTitle:@"请质检" message:@""];
@@ -260,7 +273,7 @@
     [[NetWorkAPIManager defaultManager] updateService:parm success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         dispatch_async(dispatch_get_main_queue(), ^{
-//            [weakself.delegate tableViewCell:self update:YES];
+            [weakself.delegate tableViewCell:self update:YES];
             [weakself showAlertWithTitle:@"工单更新成功" message:@""];
         });
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {

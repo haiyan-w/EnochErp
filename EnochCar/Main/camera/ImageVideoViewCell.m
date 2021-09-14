@@ -10,6 +10,8 @@
 #import <SDWebImage/SDWebImage.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <Photos/Photos.h>
+#import "ImageViewController.h"
+#import "PlayerViewController.h"
 
 @interface ImageVideoViewCell()
 @property(nonatomic, readwrite, strong) UIImageView * coverView;
@@ -42,10 +44,9 @@
             self.playBtn = [[UIImageView   alloc] initWithFrame:CGRectMake((frame.size.width - 63)/2, (frame.size.height - 63)/2, 63, 63)];
             [self.playBtn setImage:[UIImage imageNamed:@"playBtn"]];
             [self.coverView addSubview:self.playBtn];
-            
-            UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapToPlay)];
-            [self addGestureRecognizer:tap];
         }
+        UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapToPlay)];
+        [self addGestureRecognizer:tap];
     }
     return self;
 }
@@ -59,9 +60,19 @@
 
 -(void)tapToPlay
 {
-    VideoPlayer * player = [VideoPlayer player];
-    [player layoutVideoPlayerwithurl:self.item.url.absoluteString onView:self.coverView];
-    [player setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+    if ([self isVideo]) {
+//        VideoPlayer * player = [VideoPlayer player];
+//        [player layoutVideoPlayerwithurl:self.item.url.absoluteString onView:self.coverView];
+//        [player setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+        PlayerViewController * player = [[PlayerViewController alloc] initWithUrl:self.item.url];
+        [player showOn:[UIApplication sharedApplication].keyWindow.rootViewController];
+        
+    }else {
+        ImageViewController * imageCtrl = [[ImageViewController alloc] initWithUrlString:self.item.url.absoluteString title:@"1/1"];
+        imageCtrl.deleteBlock = self.deleteBlock;
+        [imageCtrl showOn:[UIApplication sharedApplication].keyWindow.rootViewController];
+    }
+    
 }
 
 -(BOOL)isVideo
@@ -77,10 +88,11 @@
 {
     if ([self isVideo]) {
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
+//            NSString * videoCoverImage = [NSString stringWithFormat:@"%@?x-oss-process=video/snapshot,t_500,f_jpg",self.item.url];
            UIImage * image = [self thumbnailImageForVideo:self.item.url atTime:1];
-            
             dispatch_async(dispatch_get_main_queue(), ^{
                 self.coverView.image = image;
+//                [self.coverView sd_setImageWithURL:[NSURL URLWithString:videoCoverImage]];
             });
         });
     }else {

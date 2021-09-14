@@ -215,6 +215,7 @@
     MaintanceViewController * addCtrl = [[MaintanceViewController alloc] init];
     addCtrl.delegate = self;
     [self.navigationController pushViewController:addCtrl animated:YES];
+    
 }
 
 -(void)setCurMaintance:(NSMutableDictionary *)curMaintance
@@ -252,7 +253,8 @@
         NSString * string = @"";
         for (int i = 0;i<self.curAssignees.count;i++)
         {
-            NSDictionary * aengineer = [[self.curAssignees objectAtIndex:i] objectForKey:@"assignee"];
+//            NSDictionary * aengineer = [[self.curAssignees objectAtIndex:i] objectForKey:@"assignee"];
+            NSDictionary * aengineer = [self.curAssignees objectAtIndex:i];
             NSString * appendStr = @"";
             if (i == 0) {
                 appendStr = [NSString stringWithFormat:@"%@",[aengineer objectForKey:@"name"]];

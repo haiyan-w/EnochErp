@@ -400,15 +400,15 @@ static NetWorkAPIManager * apiManager;
     NSString * appendStr = @"/enocloud/common/customer";
     NSString * urlString = [NSString stringWithFormat:@"%@%@",BASEURL,appendStr];
     //过滤必填项
-    [customInfo setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
+    NSMutableDictionary * customDic = [NSMutableDictionary dictionaryWithDictionary:customInfo];
+    [customDic setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
     //默认设置
     [customInfo setValue:[NSNumber numberWithFloat:1] forKey:@"serviceGoodsDiscountRate"];
     [customInfo setValue:[NSNumber numberWithFloat:1] forKey:@"serviceMaintenanceDiscountRate"];
     
     NSMutableDictionary * parm = [NSMutableDictionary dictionary];
-    NSMutableArray * array = [NSMutableArray array];
+    NSMutableArray * array = [NSMutableArray arrayWithObject:customDic];
     [parm setValue:array forKey:@"data"];
-    [array addObject:customInfo];
 
     [self resetManager];
     
@@ -423,12 +423,13 @@ static NetWorkAPIManager * apiManager;
     NSString * appendStr = @"/enocloud/common/customer";
     NSString * urlString = [NSString stringWithFormat:@"%@%@",BASEURL,appendStr];
     //过滤必填项
-    [customInfo setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
+    NSMutableDictionary * customDic = [NSMutableDictionary dictionaryWithDictionary:customInfo];
+    [customDic setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
     
     NSMutableDictionary * parm = [NSMutableDictionary dictionary];
     NSMutableArray * array = [NSMutableArray array];
+    [array addObject:customDic];
     [parm setValue:array forKey:@"data"];
-    [array addObject:customInfo];
 
     [self resetManager];
     
@@ -445,11 +446,11 @@ static NetWorkAPIManager * apiManager;
     NSString * urlString = [NSString stringWithFormat:@"%@%@",BASEURL,appendStr];
     
     //过滤必填项
-    [vehicleInfo setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
+    NSMutableDictionary * vehicleDic = [NSMutableDictionary dictionaryWithDictionary:vehicleInfo];
+    [vehicleDic setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
     
     NSMutableDictionary * parm = [NSMutableDictionary  dictionary];
-    NSMutableArray* array = [NSMutableArray array];
-    [array addObject:vehicleInfo];
+    NSMutableArray* array = [NSMutableArray arrayWithObject:vehicleDic];
     [parm setValue:array forKey:@"data"];
         
     [self resetManager];
@@ -466,11 +467,11 @@ static NetWorkAPIManager * apiManager;
     NSString * urlString = [NSString stringWithFormat:@"%@%@",BASEURL,appendStr];
     
     //过滤必填项
-    [vehicleInfo setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
+    NSMutableDictionary * vehicleDic = [NSMutableDictionary dictionaryWithDictionary:vehicleInfo];
+    [vehicleDic setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
     
     NSMutableDictionary * parm = [NSMutableDictionary  dictionary];
-    NSMutableArray* array = [NSMutableArray array];
-    [array addObject:vehicleInfo];
+    NSMutableArray* array = [NSMutableArray arrayWithObject:vehicleDic];
     [parm setValue:array forKey:@"data"];
         
     [self resetManager];
@@ -485,35 +486,18 @@ static NetWorkAPIManager * apiManager;
 {
     NSString * appendStr = @"/enocloud/service";
     NSString * urlString = [NSString stringWithFormat:@"%@%@",BASEURL,appendStr];
-
-    //过滤必填项
-    [info setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
     
+    //过滤必填项
+    NSMutableDictionary * serviceInfo = [NSMutableDictionary dictionaryWithDictionary:info];
+    [serviceInfo setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
     NSMutableDictionary * parm = [NSMutableDictionary  dictionary];
-    NSMutableArray* array = [NSMutableArray array];
+    NSArray* array = [NSArray arrayWithObject:serviceInfo];
     [parm setValue:array forKey:@"data"];
-    [array addObject:info];
     
     [self resetManager];
     
     [_manager POST:urlString parameters:parm headers:NULL progress:^(NSProgress * _Nonnull uploadProgress) {
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSDictionary * resp = responseObject;
-        NSMutableDictionary * asevice = [NSMutableDictionary dictionaryWithDictionary:info];
-        [self queryService:[[[resp objectForKey:@"data"] firstObject] integerValue] success:^(NSURLSessionDataTask *task, id  _Nullable responseObject) {
-            NSDictionary * dic = responseObject;
-//            NSMutableDictionary * parm = [NSMutableDictionary dictionaryWithObject:[dic objectForKey:@"data"] forKey:@"data"];
-            NSMutableDictionary * seviceDic = [NSMutableDictionary dictionaryWithDictionary:[[dic objectForKey:@"data"] firstObject]];
-            [seviceDic setValue:[NSDictionary dictionary] forKey:@"serviceAccidentSettlement"];
-            [seviceDic setValue:[NSDictionary dictionary] forKey:@"qualityInspector"];
-            [seviceDic setValue:[NSDictionary dictionaryWithObject:@"IM" forKey:@"code"] forKey:@"nextStep"];
-            [self updateService:seviceDic success:success failure:failure];
-            
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError *error) {
-
-        }];
-
-    } failure:failure];
+    } success:success failure:failure];
     
 }
 
@@ -537,19 +521,17 @@ static NetWorkAPIManager * apiManager;
 {
     NSString * appendStr = @"/enocloud/service";
     NSString * urlString = [NSString stringWithFormat:@"%@%@",BASEURL,appendStr];
-    NSMutableDictionary * seviceDic = [NSMutableDictionary dictionaryWithDictionary:asevice];
-    //过滤必填项
-    [seviceDic setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
     
-    [seviceDic setValue:[NSDictionary dictionary] forKey:@"serviceAccidentSettlement"];
-    [seviceDic setValue:[NSDictionary dictionary] forKey:@"qualityInspector"];
-
-    NSMutableDictionary * updateParm = [NSMutableDictionary  dictionary];
-    [updateParm setValue:[NSArray arrayWithObject:seviceDic] forKey:@"data"];
+    //过滤必填项
+    NSMutableDictionary * serviceInfo = [NSMutableDictionary dictionaryWithDictionary:asevice];
+    [serviceInfo setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
+    NSMutableDictionary * parm = [NSMutableDictionary  dictionary];
+    NSArray* array = [NSArray arrayWithObject:serviceInfo];
+    [parm setValue:array forKey:@"data"];
     
     [self resetManager];
     
-    [_manager PUT:urlString parameters:updateParm headers:NULL success:success failure:failure];
+    [_manager PUT:urlString parameters:parm headers:NULL success:success failure:failure];
 }
 
 
@@ -681,7 +663,7 @@ static NetWorkAPIManager * apiManager;
 {
     
     NSString * appendStr = @"/enocloud/common/workingteam";
-    NSString * urlString = [NSString stringWithFormat:@"%@%@",BASEURL,appendStr];
+    NSString * urlString = [NSString stringWithFormat:@"%@%@?branchIds=%d",BASEURL,appendStr,self.branchID];
     
     [self resetManager];
     

@@ -118,7 +118,7 @@
 {
     if (!_netOffView) {
         CGRect frame = self.tableview.frame;
-        _netOffView = [[NetWorkOffView alloc] initWithFrame:CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, self.tableMaxH) refreshBlock:^{
+        _netOffView = [[NetWorkOffView alloc] initWithFrame:CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, self.tableMaxH) errorMessage:@"请检查网络连接" refreshBlock:^{
             [self queryMaintancesBy:self.searchTF.text];
         }];
     }
@@ -175,6 +175,12 @@
         });
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//        NSString * info = [error.userInfo objectForKey:@"body"];
+//        NSDictionary * dic = [CommonTool dictionaryWithJsonString:info];
+//        NSDictionary * msgDic = [[dic objectForKey:@"errors"] firstObject];
+//        NSString * message = [msgDic objectForKey:@"message"];
+//        [weakself.netOffView setMessage:message];
+        [weakself.netOffView setMessage:[CommonTool getErrorMessage:error]];
         [weakself.view addSubview:weakself.netOffView];
     }];
     

@@ -26,7 +26,11 @@
 #import "ImageVideoViewCell.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "ComplexBox.h"
+#import "CommonTextView.h"
 #import "DataBase.h"
+#import "TimePickerView.h"
+#import "ImageViewController.h"
+#import "OpenOrPutawayButton.h"
 
 #define TAG_NAME 1
 #define TAG_TEL 2
@@ -39,6 +43,19 @@
 #define TAG_REASON 9
 #define TAG_REMARKS 10
 #define TAG_CUSTOMTYPE 11
+//settlement
+#define TAG_Amount 21
+#define TAG_Driver 22
+#define TAG_Area 23
+#define TAG_RiskTime 24
+#define TAG_Certificate 25
+#define TAG_Category 26
+#define TAG_Company 27
+#define TAG_IsDirect 28
+#define TAG_LossAssessor 29
+#define TAG_ClaimComment 30
+#define TAG_LossComment 31
+#define TAG_SettleTime 32
 
 #define TAG_POPVIEW_SEVICECATEGORY   21
 #define TAG_POPVIEW_VEHICLETYPE  22
@@ -48,6 +65,38 @@
 #define TAG_POPVIEW_REASON       26
 #define TAG_POPVIEW_CUSTOMERTYPE  27
 #define TAG_POPVIEW_IMAGEVIDEO  28
+#define TAG_POPVIEW_Certificate  29
+#define TAG_POPVIEW_Category  30
+#define TAG_POPVIEW_Company  31
+#define TAG_POPVIEW_IsDirect  32
+#define TAG_POPVIEW_LossAssessor  33
+#define TAG_POPVIEW_AddAccidentImage  34
+#define TAG_POPVIEW_AddLossImage  35
+
+#define TAG_TimePicker_RiskTime  51
+#define TAG_TimePicker_SettleTime  52
+
+#define TAG_ImageCtrl_AccidentImage 71
+#define TAG_ImageCtrl_LossImage 72
+
+//serviceAccidentSettlement
+#define KEY_serviceAccidentSettlement_id @"id"
+#define KEY_serviceAccidentSettlement_serialNo @"serialNo"
+#define KEY_serviceAccidentSettlement_amount @"amount"
+#define KEY_serviceAccidentSettlement_prove @"prove"
+#define KEY_serviceAccidentSettlement_type @"type"
+#define KEY_serviceAccidentSettlement_direct @"direct"
+#define KEY_serviceAccidentSettlement_accidentImage @"accidentBookImgUrl"
+#define KEY_serviceAccidentSettlement_damageImage @"damageOrderImgUrl"
+#define KEY_serviceAccidentSettlement_claimsCompany @"claimsCompany"
+#define KEY_serviceAccidentSettlement_riskSpot @"riskSpot"
+#define KEY_serviceAccidentSettlement_riskDriver @"riskDriver"
+#define KEY_serviceAccidentSettlement_accidentComment @"accidentComment"
+#define KEY_serviceAccidentSettlement_vehicleComment @"vehicleComment"
+#define KEY_serviceAccidentSettlement_riskDatetime @"riskDatetime"
+#define KEY_serviceAccidentSettlement_settlingDatetime @"settlingDatetime"
+#define KEY_serviceAccidentSettlement_settlingPerson @"settlingPerson"
+#define KEY_serviceAccidentSettlement_settlingPersonTelephone @"settlingPersonTelephone"
 
 #define BWFileBoundary @"----WebKitFormBoundaryzgyKnIGWKkZVQs0R"
 #define BWNewLine @"\r\n"
@@ -55,8 +104,15 @@
 
 #define DetailViewH 336  //车辆检查和添加图片页面的原始高度
 
+typedef enum
+{
+    AddImageVideoToPickUP, //接车检查图片
+    AddImageToAccidentBtn, //事故书
+    AddImageToLossBtn //定损单
+}AddImageVideoType;
 
-@interface PickupView()<UITextFieldDelegate,UITabBarDelegate, PopViewDelagate,MaintanceAndAccessoryDelegate,VehicleBrandViewControllerDelegate,RecognizeViewControllerDelegate,CommonTabViewDelegate,UIImagePickerControllerDelegate,UITextViewDelegate>
+
+@interface PickupView()<UITextFieldDelegate,UITabBarDelegate, PopViewDelagate,MaintanceAndAccessoryDelegate,VehicleBrandViewControllerDelegate,RecognizeViewControllerDelegate,CommonTabViewDelegate,UIImagePickerControllerDelegate,UITextViewDelegate,TimePickerDelegate,OpenOrPutawayButtonDelegate>
 @property(nonatomic,readwrite,strong)NSMutableDictionary * ossSignature;
 @property(nonatomic,readwrite,assign)PickupViewMode viewMode;
 
@@ -74,15 +130,13 @@
 @property(nonatomic,readwrite,strong)ComplexBox * vinBox;
 @property(nonatomic,readwrite,strong)ComplexBox * typeBox;
 @property(nonatomic,readwrite,strong)ComplexBox * modelBox;
-@property(nonatomic,readwrite,strong)ComplexBox * customTypeBox;
+//@property(nonatomic,readwrite,strong)ComplexBox * customTypeBox;
 
 @property(nonatomic,readwrite,strong)UIButton * repairetypeBtn;
 @property(nonatomic,readwrite,strong)UIButton * addMaintanceBtn;
 
 @property(nonatomic,readwrite,strong)UIView * extandView;
 @property(nonatomic,readwrite,strong)CommonTabView * tabbar;
-
-//@property(nonatomic,readwrite,strong)UIButton * extandBtn;
 @property(nonatomic,readwrite,strong)UIView * extandDetailView;
 
 @property(nonatomic,readwrite,strong)UIView * vehicleView;
@@ -98,6 +152,24 @@
 @property(nonatomic,readwrite,strong)UIView * imagesDetailView;
 @property(nonatomic,readwrite,copy)NSMutableArray<ImageVideoItem*> * imageArray;//视频图片列表，保存url等数据
 
+@property(nonatomic,readwrite,strong)UIView * accidentView;
+@property(nonatomic,readwrite,strong)ComplexBox * settlementAmoutBox;//定损金额
+@property(nonatomic,readwrite,strong)ComplexBox * settlementDriverBox;//出险驾驶员
+@property(nonatomic,readwrite,strong)ComplexBox * settlementAreaBox;//出险地点
+@property(nonatomic,readwrite,strong)ComplexBox * settlementRiskTimeBox;//出险时间
+@property(nonatomic,readwrite,strong)ComplexBox * settlementDateTimeBox;//定损时间
+@property(nonatomic,readwrite,strong)ComplexBox * settlementCertificateBox;//定责证明
+@property(nonatomic,readwrite,strong)ComplexBox * settlementCategoryBox;//责任类别
+@property(nonatomic,readwrite,strong)ComplexBox * settlementClaimsCompanyBox;//理赔公司
+@property(nonatomic,readwrite,strong)ComplexBox * settlementIsDirectBox;//是否直赔
+@property(nonatomic,readwrite,strong)ComplexBox * settlementLossAssessorBox;//定损员
+@property(nonatomic,readwrite,strong)CommonTextView * settlementClaimCommentTV;//理赔备注
+@property(nonatomic,readwrite,strong)CommonTextView * settlementLossCommentTV;//定损备注
+@property(nonatomic,readwrite,strong)UIButton * addAccidentImageBtn;
+@property(nonatomic,readwrite,strong)UIButton * addLossImageBtn;
+@property(nonatomic,readwrite,strong)OpenOrPutawayButton * openOrPutawayBtnView; //收起/展开按钮
+@property(nonatomic,readwrite,strong)NSMutableDictionary * serviceAccidentSettlement;//理赔信息
+
 //需要向服务器请求查询得到的信息，只获取一次
 @property(nonatomic,readwrite,copy)NSMutableArray * seviceCategorys;//维修类别列表
 @property(nonatomic,readwrite,copy)NSMutableArray * vehicleTypes;//车型类型列表
@@ -106,20 +178,19 @@
 @property(nonatomic,readwrite,copy)NSMutableArray * remainOils;//剩余油量列表
 @property(nonatomic,readwrite,copy)NSMutableArray * breakdownDescriptions;//故障描述列表
 @property(nonatomic,readwrite,copy)NSMutableArray * breakdownReasons;//故障原因列表
-//
+
 
 @property(nonatomic,readwrite,copy)NSMutableDictionary * curCustomer;//当前客户
 @property(nonatomic,readwrite,copy)NSMutableDictionary * curVehicle;//当前车辆
 @property(nonatomic,readwrite,copy)NSMutableDictionary * curSevice;//当前订单
 
-
 @property(nonatomic,readwrite,assign)  BOOL isOldCustomer;
 @property(nonatomic,readwrite,assign)  BOOL canEditVehicleInfo;
 
 
-//@property(nonatomic,readwrite,assign)  CGRect originFrame;
-
+@property(nonatomic,readwrite,assign)  AddImageVideoType addImageVideoType;
 @end
+
 
 
 @implementation PickupView
@@ -128,7 +199,7 @@
 -(instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if (self) {
-        
+        self.bounces = NO;
         self.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
         
         NSInteger left = 20;
@@ -136,147 +207,231 @@
         NSInteger space = 12;//控件间隔
         NSInteger height = 36;//输入框高度
         
-        _centerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 370)];
-        [self addSubview:_centerView];
+        [self initCenterView];
         
-        _createVehicleBtn = [[UIButton alloc] initWithFrame:CGRectMake(left, top, 163, height)];
-        [_createVehicleBtn setTitle:@"新建车牌" forState:UIControlStateNormal];
-        _createVehicleBtn.titleLabel.font = [UIFont fontWithName:@"PingFang SC" size:14];
-        _createVehicleBtn.titleLabel.textColor = [UIColor whiteColor];
-        _createVehicleBtn.layer.cornerRadius = 4;
-        [_createVehicleBtn addTarget:self action:@selector(addVehicleBtnClicked) forControlEvents:UIControlEventTouchUpInside];
-        _createVehicleBtn.backgroundColor = [UIColor colorWithRed:59/255.0 green:66/255.0 blue:80/255.0 alpha:1];
-        [_centerView addSubview:_createVehicleBtn];
-        
-        _platoNoView = [[UIView alloc] initWithFrame:CGRectMake(left, top -2 , 163, 57)];
-        _platoNoView.hidden = YES;
-        UILongPressGestureRecognizer * longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
-        [_platoNoView addGestureRecognizer:longPress];
-        [_centerView addSubview:_platoNoView];
-        _platoLab = [[UILabel alloc] initWithFrame:CGRectMake(0, 4, 163, 25)];
-        _platoLab.font = [UIFont systemFontOfSize:18 weight:UIFontWeightSemibold];
-        _platoLab.textColor = [UIColor colorWithRed:3/255.0 green:28/255.0 blue:28/255.0 alpha:1];
-        _platoLab.layer.cornerRadius = 4;
-        _platoLab.backgroundColor = [UIColor clearColor];
-        [_platoNoView addSubview:_platoLab];
-        UITapGestureRecognizer * tapPlateNo = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapPlateNo:)];
-        [_platoNoView addGestureRecognizer:tapPlateNo];
-        
-        _isOldLab = [[UILabel alloc] initWithFrame:CGRectMake(0, 38, 54, 19)];
-        _isOldLab.backgroundColor = [UIColor colorWithRed:252/255.0 green:215/255.0 blue:139/255.0 alpha:1];
-        _isOldLab.textColor = [UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1];
-        _isOldLab.text = @"新客户";
-        _isOldLab.font = [UIFont fontWithName:@"PingFang SC" size:11];
-        _isOldLab.layer.cornerRadius = 8;
-        _isOldLab.layer.masksToBounds = YES;
-        _isOldLab.textAlignment = NSTextAlignmentCenter;
-        [_platoNoView addSubview:_isOldLab];
-        
-        UIImageView * wechatIcon = [[UIImageView alloc] initWithFrame:CGRectMake(_isOldLab.frame.origin.x + _isOldLab.frame.size.width + 12, _isOldLab.frame.origin.y + 2, 16, 16)];
-        [wechatIcon setImage:[UIImage imageNamed:@"wechat_bind"]];
-        [_platoNoView addSubview:wechatIcon];
-        
-        _wechatUnionLab = [[UILabel alloc] initWithFrame:CGRectMake(wechatIcon.frame.origin.x + wechatIcon.frame.size.width + 4, wechatIcon.frame.origin.y, 32, 16)];
-        _wechatUnionLab.font = [UIFont fontWithName:@"PingFang SC" size:11];
-        _wechatUnionLab.layer.cornerRadius = 4;
-        _wechatUnionLab.backgroundColor = [UIColor clearColor];
-        [_platoNoView addSubview:_wechatUnionLab];
-        
-        _wechatUnionBtn = [[UIButton alloc] initWithFrame:CGRectMake(_isOldLab.frame.origin.x, _isOldLab.frame.origin.y, _isOldLab.frame.size.width+wechatIcon.frame.size.width+_wechatUnionLab.frame.size.width+8, _isOldLab.frame.size.height)];
-        [_wechatUnionBtn setBackgroundColor:[UIColor clearColor]];
-        [_wechatUnionBtn addTarget:self action:@selector(bindWechat) forControlEvents:UIControlEventTouchUpInside];
-        [_platoNoView addSubview:_wechatUnionBtn];
-
-        _addMaintanceBtn = [[UIButton alloc] initWithFrame:CGRectMake((_centerView.bounds.size.width - 96 - left), 33, 96, height)];
-        [_addMaintanceBtn setTitle:@"项目与配件" forState:UIControlStateNormal];
-        _addMaintanceBtn.titleLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
-        _addMaintanceBtn.layer.cornerRadius = 4;
-        [_addMaintanceBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-        [_addMaintanceBtn addTarget:self action:@selector(addMaintance) forControlEvents:UIControlEventTouchUpInside];
-        _addMaintanceBtn.backgroundColor = [UIColor whiteColor];
-        [_centerView addSubview:_addMaintanceBtn];
-         
-        _nameBox = [[ComplexBox alloc] initWithFrame:CGRectMake(left, (_platoNoView.frame.origin.y+_platoNoView.frame.size.height + space),_platoNoView.frame.size.width, height) mode:ComplexBoxEdit];
-        _nameBox.placeHolder = @"请输入姓名";
-        _nameBox.delegate = self;
-        _nameBox.tag = TAG_NAME;
-        [_centerView addSubview:_nameBox];
-        
-        _cellphoneBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_nameBox.frame.origin.x, (_nameBox.frame.origin.y+_nameBox.frame.size.height + space), _nameBox.frame.size.width, _nameBox.frame.size.height) mode:ComplexBoxEdit];
-        _cellphoneBox.placeHolder = @"请输入手机号码";
-        _cellphoneBox.delegate = self;
-        _cellphoneBox.tag = TAG_TEL;
-        [_centerView addSubview:_cellphoneBox];
-        
-        _repairetypeBtn = [[UIButton alloc] initWithFrame:CGRectMake((self.bounds.size.width - 148- left), _nameBox.frame.origin.y, 148, (_nameBox.frame.size.height + _cellphoneBox.frame.size.height + space))];
-        [_repairetypeBtn setTitle:@"维修类别" forState:UIControlStateNormal];
-        _repairetypeBtn.titleLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
-        _repairetypeBtn.layer.cornerRadius = 4;
-        [_repairetypeBtn setTitleColor:[UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1] forState:UIControlStateNormal];
-        [_repairetypeBtn addTarget:self action:@selector(selectSeviceCategory) forControlEvents:UIControlEventTouchUpInside];
-        _repairetypeBtn.backgroundColor = [UIColor whiteColor];
-        [_centerView addSubview:_repairetypeBtn];
-        
-        __weak PickupView * weakself = self;
-        
-        _vinBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_cellphoneBox.frame.origin.x, (_cellphoneBox.frame.origin.y+_cellphoneBox.frame.size.height + space), (self.bounds.size.width - 2*_cellphoneBox.frame.origin.x), _cellphoneBox.frame.size.height) mode:ComplexBoxEditAndSelect];
-        _vinBox.placeHolder = @"请输入VIN码";
-        _vinBox.delegate = self;
-        _vinBox.tag = TAG_VIN;
-        _vinBox.normalImageName = @"scanBtn";
-        _vinBox.disabledImageName = @"scanBtn";
-        _vinBox.selectBlock = ^{
-            [weakself scan];
-        };
-        [_centerView addSubview:_vinBox];
-        
-        _modelBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_vinBox.frame.origin.x, (_vinBox.frame.origin.y+_vinBox.frame.size.height + space), _vinBox.bounds.size.width, _vinBox.bounds.size.height) mode:ComplexBoxSelect];
-//        _modelBox.placeHolder = @"车型选择";
-        _modelBox.placeHolder = @"车品牌";
-        _modelBox.delegate = self;
-        _modelBox.tag = TAG_MODEL;
-        _modelBox.selectBlock = ^{
-            [weakself selectModel];
-        };
-        [_centerView addSubview:_modelBox];
-        
-        _typeBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_modelBox.frame.origin.x, (_modelBox.frame.origin.y+_modelBox.frame.size.height + space), (self.bounds.size.width - 2*_modelBox.frame.origin.x), _modelBox.frame.size.height) mode:ComplexBoxSelect];
-        _typeBox.placeHolder = @"车型类型选择";
-        _typeBox.delegate = self;
-        _typeBox.tag = TAG_TYPE;
-        _typeBox.selectBlock = ^{
-            
-            [weakself selectVehicleType];
-        };
-        [_centerView addSubview:_typeBox];
-
-        _customTypeBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_typeBox.frame.origin.x, (_typeBox.frame.origin.y+_typeBox.frame.size.height + space), (self.bounds.size.width - 2*_typeBox.frame.origin.x), _typeBox.frame.size.height) mode:ComplexBoxSelect];
-        _customTypeBox.placeHolder = @"客户类型选择";
-        _customTypeBox.delegate = self;
-        _customTypeBox.tag = TAG_CUSTOMTYPE;
-        _customTypeBox.selectBlock = ^{
-            [weakself selectCustomType];
-        };
-        [_centerView addSubview:_customTypeBox];
-
-        _extandView = [[UIView alloc] initWithFrame:CGRectMake(0, (_centerView.frame.origin.y + _centerView.bounds.size.height + 2*space), (self.bounds.size.width - 2*left), 58)];
+        _extandView = [[UIView alloc] initWithFrame:CGRectMake(0, (self.centerView.frame.origin.y + _centerView.bounds.size.height + 2*space), (self.bounds.size.width - 2*left), 58)];
         [self addSubview:_extandView];
-        
-        CommonTabItem * item1 = [[CommonTabItem alloc] initWithImagename:@"addvehicle_unsel" selectedImage:@"addvehicle_sel"];
-        CommonTabItem * item2 = [[CommonTabItem alloc] initWithImagename:@"addimage_unsel" selectedImage:@"addimage_sel"];
-        _tabbar = [[CommonTabView alloc] initWithFrame:CGRectMake(0, 0, 224, 58) target:self];
-        [_tabbar setItems:@[item1,item2]];
-        [_tabbar setIndex:0];
-        [_extandView addSubview:_tabbar];
-  
+            
         _extandDetailView = [[UIView alloc] initWithFrame:CGRectMake(left, (_extandView.frame.origin.y + _extandView.bounds.size.height+space), (self.bounds.size.width - 2*left),DetailViewH)];
         _extandDetailView.backgroundColor = [UIColor clearColor];
         _extandDetailView.hidden = YES;
         [self addSubview:_extandDetailView];
         
+        [_extandDetailView addSubview:self.vehicleView];
+
+        [_extandDetailView addSubview:self.imagesView];
+        self.imagesView.hidden = YES;
+        
+        [_extandDetailView addSubview:self.accidentView];
+        self.accidentView.hidden = YES;
+        
+        [_extandView addSubview:self.tabbar];
+        
+        self.contentSize = CGSizeMake(self.frame.size.width, 500);
+        self.scrollEnabled = YES;
+        self.showsVerticalScrollIndicator = NO;
+        self.showsHorizontalScrollIndicator = NO;
+        
+        self.isOldCustomer = NO;
+        
+        _seviceCategorys = [NSMutableArray array];
+        _vehicleTypes = [NSMutableArray array];
+        _vehicleModels = [NSMutableArray array];
+        _customerTypes = [NSMutableArray array];
+        _remainOils = [NSMutableArray array];
+        _breakdownDescriptions = [NSMutableArray array];
+        _breakdownReasons = [NSMutableArray array];
+        
+        [_vinBox addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
+        [_commentTV addObserver:self forKeyPath:@"text" options:NSKeyValueObservingOptionNew context:nil];
+        
+        [self getOSSSignature];
+        [self queryVehicleType];
+        [self queryVehicleModel];
+        [self queryCustomerType];
+        self.viewMode = PickupInitialMode;
+        //  添加手势
+        UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(taponbg:)];
+        [self addGestureRecognizer:tap];
+    }
+    return self;
+}
+
+-(void)initCenterView
+{
+    NSInteger left = 20;
+    NSInteger top = 25;
+    NSInteger space = 12;//控件间隔
+    NSInteger height = 36;//输入框高度
+    
+    _centerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 322)];
+    [self addSubview:self.centerView];
+    
+    _createVehicleBtn = [[UIButton alloc] initWithFrame:CGRectMake(left, top, 163, height)];
+    [_createVehicleBtn setTitle:@"新建车牌" forState:UIControlStateNormal];
+    _createVehicleBtn.titleLabel.font = [UIFont fontWithName:@"PingFang SC" size:14];
+    _createVehicleBtn.titleLabel.textColor = [UIColor whiteColor];
+    _createVehicleBtn.layer.cornerRadius = 4;
+    [_createVehicleBtn addTarget:self action:@selector(addVehicleBtnClicked) forControlEvents:UIControlEventTouchUpInside];
+    _createVehicleBtn.backgroundColor = [UIColor colorWithRed:59/255.0 green:66/255.0 blue:80/255.0 alpha:1];
+    [_centerView addSubview:_createVehicleBtn];
+    
+    _platoNoView = [[UIView alloc] initWithFrame:CGRectMake(left, top -2 , 163, 57)];
+    _platoNoView.hidden = YES;
+    UILongPressGestureRecognizer * longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
+    [_platoNoView addGestureRecognizer:longPress];
+    [_centerView addSubview:_platoNoView];
+    _platoLab = [[UILabel alloc] initWithFrame:CGRectMake(0, 4, 163, 25)];
+    _platoLab.font = [UIFont systemFontOfSize:18 weight:UIFontWeightSemibold];
+    _platoLab.textColor = [UIColor colorWithRed:3/255.0 green:28/255.0 blue:28/255.0 alpha:1];
+    _platoLab.layer.cornerRadius = 4;
+    _platoLab.backgroundColor = [UIColor clearColor];
+    [_platoNoView addSubview:_platoLab];
+    UITapGestureRecognizer * tapPlateNo = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapPlateNo:)];
+    [_platoNoView addGestureRecognizer:tapPlateNo];
+    
+    _isOldLab = [[UILabel alloc] initWithFrame:CGRectMake(0, 38, 54, 19)];
+    _isOldLab.backgroundColor = [UIColor colorWithRed:252/255.0 green:215/255.0 blue:139/255.0 alpha:1];
+    _isOldLab.textColor = [UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1];
+    _isOldLab.text = @"新客户";
+    _isOldLab.font = [UIFont fontWithName:@"PingFang SC" size:11];
+    _isOldLab.layer.cornerRadius = 8;
+    _isOldLab.layer.masksToBounds = YES;
+    _isOldLab.textAlignment = NSTextAlignmentCenter;
+    [_platoNoView addSubview:_isOldLab];
+    
+    UIImageView * wechatIcon = [[UIImageView alloc] initWithFrame:CGRectMake(_isOldLab.frame.origin.x + _isOldLab.frame.size.width + 12, _isOldLab.frame.origin.y + 2, 16, 16)];
+    [wechatIcon setImage:[UIImage imageNamed:@"wechat_bind"]];
+    [_platoNoView addSubview:wechatIcon];
+    
+    _wechatUnionLab = [[UILabel alloc] initWithFrame:CGRectMake(wechatIcon.frame.origin.x + wechatIcon.frame.size.width + 4, wechatIcon.frame.origin.y, 32, 16)];
+    _wechatUnionLab.font = [UIFont fontWithName:@"PingFang SC" size:11];
+    _wechatUnionLab.layer.cornerRadius = 4;
+    _wechatUnionLab.backgroundColor = [UIColor clearColor];
+    [_platoNoView addSubview:_wechatUnionLab];
+    
+    _wechatUnionBtn = [[UIButton alloc] initWithFrame:CGRectMake(_isOldLab.frame.origin.x, _isOldLab.frame.origin.y, _isOldLab.frame.size.width+wechatIcon.frame.size.width+_wechatUnionLab.frame.size.width+8, _isOldLab.frame.size.height)];
+    [_wechatUnionBtn setBackgroundColor:[UIColor clearColor]];
+    [_wechatUnionBtn addTarget:self action:@selector(bindWechat) forControlEvents:UIControlEventTouchUpInside];
+    [_platoNoView addSubview:_wechatUnionBtn];
+
+    _addMaintanceBtn = [[UIButton alloc] initWithFrame:CGRectMake((_centerView.bounds.size.width - 96 - left), 33, 96, height)];
+    [_addMaintanceBtn setTitle:@"项目与配件" forState:UIControlStateNormal];
+    _addMaintanceBtn.titleLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+    _addMaintanceBtn.layer.cornerRadius = 4;
+    [_addMaintanceBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [_addMaintanceBtn addTarget:self action:@selector(addMaintance) forControlEvents:UIControlEventTouchUpInside];
+    _addMaintanceBtn.backgroundColor = [UIColor whiteColor];
+    [_centerView addSubview:_addMaintanceBtn];
+     
+    _nameBox = [[ComplexBox alloc] initWithFrame:CGRectMake(left, (_platoNoView.frame.origin.y+_platoNoView.frame.size.height + space),_platoNoView.frame.size.width, height) mode:ComplexBoxEdit];
+    _nameBox.placeHolder = @"请输入姓名";
+    _nameBox.delegate = self;
+    _nameBox.tag = TAG_NAME;
+    [_centerView addSubview:_nameBox];
+    
+    _cellphoneBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_nameBox.frame.origin.x, (_nameBox.frame.origin.y+_nameBox.frame.size.height + space), _nameBox.frame.size.width, _nameBox.frame.size.height) mode:ComplexBoxEdit];
+    _cellphoneBox.placeHolder = @"请输入手机号码";
+    _cellphoneBox.delegate = self;
+    _cellphoneBox.tag = TAG_TEL;
+    [_centerView addSubview:_cellphoneBox];
+    
+    _repairetypeBtn = [[UIButton alloc] initWithFrame:CGRectMake((self.bounds.size.width - 148- left), _nameBox.frame.origin.y, 148, (_nameBox.frame.size.height + _cellphoneBox.frame.size.height + space))];
+    [_repairetypeBtn setTitle:@"维修类别" forState:UIControlStateNormal];
+    _repairetypeBtn.titleLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+    _repairetypeBtn.layer.cornerRadius = 4;
+    [_repairetypeBtn setTitleColor:[UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1] forState:UIControlStateNormal];
+    [_repairetypeBtn addTarget:self action:@selector(selectSeviceCategory) forControlEvents:UIControlEventTouchUpInside];
+    _repairetypeBtn.backgroundColor = [UIColor whiteColor];
+    [_centerView addSubview:_repairetypeBtn];
+    
+    __weak PickupView * weakself = self;
+    
+    _vinBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_cellphoneBox.frame.origin.x, (_cellphoneBox.frame.origin.y+_cellphoneBox.frame.size.height + space), (self.bounds.size.width - 2*_cellphoneBox.frame.origin.x), _cellphoneBox.frame.size.height) mode:ComplexBoxEditAndSelect];
+    _vinBox.placeHolder = @"请输入VIN码";
+    _vinBox.delegate = self;
+    _vinBox.tag = TAG_VIN;
+    _vinBox.normalImageName = @"scanBtn";
+    _vinBox.disabledImageName = @"scanBtn";
+    _vinBox.selectBlock = ^{
+        [weakself scan];
+    };
+    [_centerView addSubview:_vinBox];
+    
+    _modelBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_vinBox.frame.origin.x, (_vinBox.frame.origin.y+_vinBox.frame.size.height + space), _vinBox.bounds.size.width, _vinBox.bounds.size.height) mode:ComplexBoxSelect];
+    _modelBox.placeHolder = @"车品牌";
+    _modelBox.delegate = self;
+    _modelBox.tag = TAG_MODEL;
+    _modelBox.selectBlock = ^{
+        [weakself selectModel];
+    };
+    [_centerView addSubview:_modelBox];
+    
+    _typeBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_modelBox.frame.origin.x, (_modelBox.frame.origin.y+_modelBox.frame.size.height + space), (self.bounds.size.width - 2*_modelBox.frame.origin.x), _modelBox.frame.size.height) mode:ComplexBoxSelect];
+    _typeBox.placeHolder = @"车型类型选择";
+    _typeBox.delegate = self;
+    _typeBox.tag = TAG_TYPE;
+    _typeBox.selectBlock = ^{
+        
+        [weakself selectVehicleType];
+    };
+    [_centerView addSubview:_typeBox];
+}
+
+-(CommonTabView *)tabbar
+{
+    if (!_tabbar) {
+        CommonTabItem * item1 = [[CommonTabItem alloc] initWithImagename:@"addvehicle_unsel" selectedImage:@"addvehicle_sel"];
+        CommonTabItem * item2 = [[CommonTabItem alloc] initWithImagename:@"addimage_unsel" selectedImage:@"addimage_sel"];
+//        CommonTabItem * item3 = [[CommonTabItem alloc] initWithImagename:@"addAccident_unsel" selectedImage:@"addAccident_sel"];
+        
+        _tabbar = [[CommonTabView alloc] initWithFrame:CGRectMake(0, 0, 224, 58) target:self];
+        [_tabbar setItems:@[item1,item2]];
+        [_tabbar setIndex:0];
+    }
+    return _tabbar;
+}
+
+-(void)showAccidentSettlement
+{
+    CommonTabItem * item1 = [[CommonTabItem alloc] initWithImagename:@"addvehicle_unsel" selectedImage:@"addvehicle_sel"];
+    CommonTabItem * item2 = [[CommonTabItem alloc] initWithImagename:@"addimage_unsel" selectedImage:@"addimage_sel"];
+    CommonTabItem * item3 = [[CommonTabItem alloc] initWithImagename:@"addAccident_unsel" selectedImage:@"addAccident_sel"];
+    
+    NSInteger lastIndex = _tabbar.index;
+//    _tabbar = [[CommonTabView alloc] initWithFrame:CGRectMake(0, 0, 336, 58) target:self];
+    _tabbar.frame = CGRectMake(0, 0, 336, 58);
+    [_tabbar setItems:@[item1,item2,item3]];
+    [_tabbar setIndex:lastIndex];
+}
+
+-(void)hideAccidentSettlement
+{
+    CommonTabItem * item1 = [[CommonTabItem alloc] initWithImagename:@"addvehicle_unsel" selectedImage:@"addvehicle_sel"];
+    CommonTabItem * item2 = [[CommonTabItem alloc] initWithImagename:@"addimage_unsel" selectedImage:@"addimage_sel"];
+    NSInteger lastIndex = _tabbar.index;
+//    _tabbar = [[CommonTabView alloc] initWithFrame:CGRectMake(0, 0, 224, 58) target:self];
+    _tabbar.frame = CGRectMake(0, 0, 224, 58);
+    [_tabbar setItems:@[item1,item2]];
+    [_tabbar setIndex:0];
+//    if (lastIndex > 1) {
+//        [_tabbar setIndex:0];
+//    }else {
+//        [_tabbar setIndex:lastIndex];
+//    }
+}
+
+
+-(UIView*)vehicleView
+{
+    if (!_vehicleView) {
+        NSInteger left = 20;
+        NSInteger top = 25;
+        NSInteger space = 12;//控件间隔
+        NSInteger height = 36;//输入框高度
         _vehicleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _extandDetailView.bounds.size.width, _extandDetailView.frame.size.height)];
         _vehicleView.backgroundColor = [UIColor clearColor];
-        [_extandDetailView addSubview:_vehicleView];
+        
         
         UIView * mileView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _vehicleView.bounds.size.width, height)];
         mileView.backgroundColor = [UIColor whiteColor];
@@ -306,6 +461,7 @@
         _oilgaugeBox.placeHolder = @"油表";
         _oilgaugeBox.delegate = self;
         _oilgaugeBox.tag = TAG_OILGAUGE;
+        __weak PickupView * weakself = self;
         _oilgaugeBox.selectBlock = ^{
 
             [weakself selectOilgauge];
@@ -340,7 +496,7 @@
         UILabel * commentLab = [[UILabel alloc] initWithFrame:CGRectMake(12, 12, 100, 20)];
         commentLab.text = @"接车备注";
         commentLab.textColor = [UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1];
-        commentLab.font = [UIFont systemFontOfSize:14];
+        commentLab.font = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];
         [commentView addSubview:commentLab];
         
         _commentHolderLab = [[UILabel alloc] initWithFrame:CGRectMake(12, 40, 100, 17)];
@@ -356,8 +512,20 @@
         _commentTV.delegate = self;
         _commentTV.showsVerticalScrollIndicator = NO;
         [commentView addSubview:_commentTV];
+    }
+    return _vehicleView;
+}
+
+-(UIView*)imagesView
+{
+    if (!_imagesView) {
         
-        _imagesView = [[UIView alloc] initWithFrame:_vehicleView.frame];
+        NSInteger left = 20;
+        NSInteger top = 25;
+        NSInteger space = 12;//控件间隔
+        NSInteger height = 36;//输入框高度
+        
+        _imagesView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _extandDetailView.bounds.size.width, _extandDetailView.frame.size.height)];
         UIButton * addImageBtn = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 84, 84)];
         [addImageBtn addTarget:self action:@selector(addImageBtnClicked) forControlEvents:UIControlEventTouchUpInside];
         [addImageBtn setImage:[UIImage imageNamed:@"add2"] forState:UIControlStateNormal];
@@ -370,38 +538,174 @@
         _imagesDetailView = [[UIView alloc] initWithFrame:CGRectMake(0,imgDetailY, _imagesView.frame.size.width, _imagesView.frame.size.height - imgDetailY)];
         _imagesDetailView.backgroundColor = [UIColor clearColor];
         [_imagesView addSubview:_imagesDetailView];
-        _imagesView.hidden = YES;
-        [_extandDetailView addSubview:_imagesView];
-        
-        self.contentSize = CGSizeMake(self.frame.size.width, 500);
-        self.scrollEnabled = YES;
-        self.showsVerticalScrollIndicator = NO;
-        self.showsHorizontalScrollIndicator = NO;
-        
-        self.isOldCustomer = NO;
-        
-        _seviceCategorys = [NSMutableArray array];
-        _vehicleTypes = [NSMutableArray array];
-        _vehicleModels = [NSMutableArray array];
-        _customerTypes = [NSMutableArray array];
-        _remainOils = [NSMutableArray array];
-        _breakdownDescriptions = [NSMutableArray array];
-        _breakdownReasons = [NSMutableArray array];
-        
-        [_vinBox addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
-        [_commentTV addObserver:self forKeyPath:@"text" options:NSKeyValueObservingOptionNew context:nil];
-        
-        [self getOSSSignature];
-        [self queryVehicleType];
-        [self queryVehicleModel];
-        [self queryCustomerType];
-        self.viewMode = PickupInitialMode;
-        //  添加手势
-        UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(taponbg:)];
-        [self addGestureRecognizer:tap];
     }
-    return self;
+    return _imagesView;
 }
+
+-(UIView*)accidentView
+{
+    if (!_accidentView) {
+        NSInteger left = 20;
+        NSInteger top = 25;
+        NSInteger space = 12;//控件间隔
+        NSInteger height = 36;//输入框高度
+        _accidentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, _extandDetailView.bounds.size.width, 365)];
+
+        __weak PickupView * weakself = self;
+        
+        _settlementAmoutBox = [[ComplexBox alloc] initWithFrame:CGRectMake(0, 0,_accidentView.frame.size.width, height) mode:ComplexBoxEdit];
+        _settlementAmoutBox.placeHolder = @"定损金额";
+        _settlementAmoutBox.delegate = self;
+        _settlementAmoutBox.tag = TAG_Amount;
+        _settlementAmoutBox.keyboardType = UIKeyboardTypeDecimalPad;
+        [_accidentView addSubview:_settlementAmoutBox];
+        
+        _settlementClaimsCompanyBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_settlementAmoutBox.frame.origin.x, (_settlementAmoutBox.frame.origin.y+_settlementAmoutBox.frame.size.height + space),_settlementAmoutBox.frame.size.width, height) mode:ComplexBoxSelect hint:@"SASCMC" popTitle:@"理赔公司"];
+        _settlementClaimsCompanyBox.placeHolder = @"理赔公司";
+        _settlementClaimsCompanyBox.delegate = self;
+        _settlementClaimsCompanyBox.tag = TAG_Company;
+//        _settlementClaimsCompanyBox.selectBlock = ^{
+//            [weakself selectCompany];
+//        };
+        [_accidentView addSubview:_settlementClaimsCompanyBox];
+        
+        _settlementIsDirectBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_settlementClaimsCompanyBox.frame.origin.x, (_settlementClaimsCompanyBox.frame.origin.y+_settlementClaimsCompanyBox.frame.size.height + space),_settlementClaimsCompanyBox.frame.size.width, height) mode:ComplexBoxSelect lookup:@"FLAG" popTitle:@"是否直赔"];
+        _settlementIsDirectBox.placeHolder = @"是否直赔";
+        _settlementIsDirectBox.delegate = self;
+        _settlementIsDirectBox.tag = TAG_IsDirect;
+        [_accidentView addSubview:_settlementIsDirectBox];
+        
+        _settlementLossAssessorBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_settlementIsDirectBox.frame.origin.x, (_settlementIsDirectBox.frame.origin.y+_settlementIsDirectBox.frame.size.height + space),_settlementIsDirectBox.frame.size.width, height) mode:ComplexBoxSelect hint:@"SASSTP" popTitle:@"定损员"];
+        _settlementLossAssessorBox.placeHolder = @"定损员";
+        _settlementLossAssessorBox.delegate = self;
+        _settlementLossAssessorBox.tag = TAG_LossAssessor;
+        [_accidentView addSubview:_settlementLossAssessorBox];
+        
+        _settlementCertificateBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_settlementLossAssessorBox.frame.origin.x, (_settlementLossAssessorBox.frame.origin.y+_settlementLossAssessorBox.frame.size.height + space),_settlementLossAssessorBox.frame.size.width, height) mode:ComplexBoxSelect lookup:@"ACSTPRV" popTitle:@"定责证明"];
+        _settlementCertificateBox.placeHolder = @"定责证明";
+        _settlementCertificateBox.delegate = self;
+        _settlementCertificateBox.tag = TAG_Certificate;
+
+        [_accidentView addSubview:_settlementCertificateBox];
+        
+        _settlementCategoryBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_settlementCertificateBox.frame.origin.x, (_settlementCertificateBox.frame.origin.y+_settlementCertificateBox.frame.size.height + space),_settlementCertificateBox.frame.size.width, height) mode:ComplexBoxSelect lookup:@"ACSTDTTP" popTitle:@"责任类别"];
+        _settlementCategoryBox.placeHolder = @"责任类别";
+        _settlementCategoryBox.delegate = self;
+        _settlementCategoryBox.tag = TAG_Category;
+        [_accidentView addSubview:_settlementCategoryBox];
+        
+        _settlementRiskTimeBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_settlementCategoryBox.frame.origin.x, (_settlementCategoryBox.frame.origin.y+_settlementCategoryBox.frame.size.height + space),_settlementCategoryBox.frame.size.width, height) mode:ComplexBoxSelect];
+        _settlementRiskTimeBox.placeHolder = @"出险时间";
+        _settlementRiskTimeBox.delegate = self;
+        _settlementRiskTimeBox.tag = TAG_RiskTime;
+        _settlementRiskTimeBox.selectBlock = ^{
+            [weakself selectRiskTime];
+        };
+        [_accidentView addSubview:_settlementRiskTimeBox];
+        
+        _settlementDateTimeBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_settlementRiskTimeBox.frame.origin.x, (_settlementRiskTimeBox.frame.origin.y+_settlementRiskTimeBox.frame.size.height + space),_settlementRiskTimeBox.frame.size.width, height) mode:ComplexBoxSelect];
+        _settlementDateTimeBox.placeHolder = @"定损时间";
+        _settlementDateTimeBox.delegate = self;
+        _settlementDateTimeBox.tag = TAG_SettleTime;
+        _settlementDateTimeBox.selectBlock = ^{
+            [weakself selectSettleTime];
+        };
+        [_accidentView addSubview:_settlementDateTimeBox];
+
+        _settlementDriverBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_settlementDateTimeBox.frame.origin.x, (_settlementDateTimeBox.frame.origin.y+_settlementDateTimeBox.frame.size.height + space),_settlementDateTimeBox.frame.size.width, height) mode:ComplexBoxEdit];
+        _settlementDriverBox.placeHolder = @"出险驾驶员";
+        _settlementDriverBox.delegate = self;
+        _settlementDriverBox.tag = TAG_Driver;
+        [_accidentView addSubview:_settlementDriverBox];
+        
+        _settlementAreaBox = [[ComplexBox alloc] initWithFrame:CGRectMake(_settlementDriverBox.frame.origin.x, (_settlementDriverBox.frame.origin.y+_settlementDriverBox.frame.size.height + space),_settlementDriverBox.frame.size.width, height) mode:ComplexBoxEdit];
+        _settlementAreaBox.placeHolder = @"出险地点";
+        _settlementAreaBox.delegate = self;
+        _settlementAreaBox.tag = TAG_Area;
+        [_accidentView addSubview:_settlementAreaBox];
+        
+        _settlementClaimCommentTV= [[CommonTextView alloc] initWithFrame:CGRectMake(_settlementAreaBox.frame.origin.x, (_settlementAreaBox.frame.origin.y+_settlementAreaBox.frame.size.height + space),_settlementAreaBox.frame.size.width, 144) title:@"理赔备注" placeHolder:@"输入内容..."];
+        _settlementClaimCommentTV.delegate = self;
+        [_settlementClaimCommentTV setTextViewTag:TAG_ClaimComment];
+        [_accidentView addSubview:_settlementClaimCommentTV];
+        
+        _settlementLossCommentTV = [[CommonTextView alloc] initWithFrame:CGRectMake(_settlementClaimCommentTV.frame.origin.x, (_settlementClaimCommentTV.frame.origin.y+_settlementClaimCommentTV.frame.size.height + space),_settlementClaimCommentTV.frame.size.width, 144) title:@"定损备注" placeHolder:@"输入内容..."];
+        _settlementLossCommentTV.delegate = self;
+        [_settlementLossCommentTV setTextViewTag:TAG_LossComment];
+        [_accidentView addSubview:_settlementLossCommentTV];
+        
+        _addAccidentImageBtn = [[UIButton alloc] initWithFrame:CGRectMake(_settlementLossCommentTV.frame.origin.x, (_settlementLossCommentTV.frame.origin.y+_settlementLossCommentTV.frame.size.height + space), 84, 84)];
+        [_addAccidentImageBtn addTarget:self action:@selector(addAccidentImageBtnClicked) forControlEvents:UIControlEventTouchUpInside];
+        [_addAccidentImageBtn setImage:[UIImage imageNamed:@"accidentImage"] forState:UIControlStateNormal];
+        _addAccidentImageBtn.layer.cornerRadius = 4;
+        _addAccidentImageBtn.layer.masksToBounds = YES;
+        [_accidentView addSubview:_addAccidentImageBtn];
+        
+        _addLossImageBtn = [[UIButton alloc] initWithFrame:CGRectMake(_addAccidentImageBtn.frame.origin.x + _addAccidentImageBtn.frame.size.width + space, _addAccidentImageBtn.frame.origin.y, _addAccidentImageBtn.frame.size.width, _addAccidentImageBtn.frame.size.height)];
+        [_addLossImageBtn addTarget:self action:@selector(addLossImageBtnClicked) forControlEvents:UIControlEventTouchUpInside];
+        [_addLossImageBtn setImage:[UIImage imageNamed:@"lossImage"] forState:UIControlStateNormal];
+        _addLossImageBtn.layer.cornerRadius = 4;
+        [_accidentView addSubview:_addLossImageBtn];
+        _addLossImageBtn.layer.masksToBounds = YES;
+        
+        _openOrPutawayBtnView = [[OpenOrPutawayButton alloc] initWithFrame:CGRectMake(0, _accidentView.frame.size.height - 32 - 45, _accidentView.frame.size.width, 77) needOpen:NO];
+        _openOrPutawayBtnView.backgroundColor = [UIColor colorWithRed:242/255.0 green:242/255.0 blue:242/255.0 alpha:1];
+        _openOrPutawayBtnView.delegate = self;
+        [_accidentView addSubview:_openOrPutawayBtnView];
+
+    }
+    return _accidentView;
+}
+
+-(void)addAccidentImageBtnClicked
+{
+    if (![self.serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_accidentImage]) {
+        PopViewController * popCtrl = [[PopViewController alloc] initWithTitle:@"图片" Data:@[@"拍摄", @"从相册选择"]];
+        popCtrl.delegate = self;
+        popCtrl.view.tag = TAG_POPVIEW_AddAccidentImage;
+        [popCtrl showIn:self.navCtrl];
+    }else {
+        //图片全屏显示
+        ImageViewController * imageCtrl = [[ImageViewController  alloc] initWithUrlString:[self.serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_accidentImage] title:@"事故书"];
+        imageCtrl.tag = TAG_ImageCtrl_AccidentImage;
+//        imageCtrl.delegate = self;
+        imageCtrl.deleteBlock = ^{
+            [self.serviceAccidentSettlement removeObjectForKey:KEY_serviceAccidentSettlement_accidentImage];
+            [self.addAccidentImageBtn setImage:[UIImage imageNamed:@"accidentImage"] forState:UIControlStateNormal];
+        };
+        [imageCtrl showOn:self.navCtrl];
+    }
+}
+
+-(void)addLossImageBtnClicked
+{
+    if (![self.serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_damageImage]) {
+        PopViewController * popCtrl = [[PopViewController alloc] initWithTitle:@"图片" Data:@[@"拍摄", @"从相册选择"]];
+        popCtrl.delegate = self;
+        popCtrl.view.tag = TAG_POPVIEW_AddLossImage;
+        [popCtrl showIn:self.navCtrl];
+    }else {
+        //图片全屏显示
+        ImageViewController * imageCtrl = [[ImageViewController  alloc] initWithUrlString:[self.serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_damageImage] title:@"定损单"];
+        imageCtrl.tag = TAG_ImageCtrl_LossImage;
+//        imageCtrl.delegate = self;
+        imageCtrl.deleteBlock = ^{
+            [self.serviceAccidentSettlement removeObjectForKey:KEY_serviceAccidentSettlement_damageImage];
+            [self.addLossImageBtn setImage:[UIImage imageNamed:@"lossImage"] forState:UIControlStateNormal];
+        };
+        [imageCtrl showOn:self.navCtrl];
+    }
+    
+}
+
+-(NSMutableDictionary*)serviceAccidentSettlement
+{
+    if (!_serviceAccidentSettlement) {
+        _serviceAccidentSettlement = [NSMutableDictionary dictionary];
+    }
+    return _serviceAccidentSettlement;
+}
+
 
 -(void)addNotification
 {
@@ -572,7 +876,7 @@
     _vinBox.enabled = enabled;
     _typeBox.enabled = enabled;
     _modelBox.enabled = enabled;
-    _customTypeBox.enabled = enabled;
+//    _customTypeBox.enabled = enabled;
 }
 
 -(void)shouldSeviceInfoHide:(BOOL)hide
@@ -632,7 +936,7 @@
         _vinBox.enabled = YES;
         _typeBox.enabled = YES;
         _modelBox.enabled = YES;
-        _customTypeBox.enabled = YES;
+//        _customTypeBox.enabled = YES;
         
     }else
     {
@@ -641,8 +945,23 @@
         _vinBox.enabled = NO;
         _typeBox.enabled = NO;
         _modelBox.enabled = NO;
-        _customTypeBox.enabled = NO;
+//        _customTypeBox.enabled = NO;
     }
+}
+
+-(void)saveServiceAccidentSettlement
+{
+    //settlement
+    [self.serviceAccidentSettlement setValue:[NSNumber numberWithFloat:[self.settlementAmoutBox getText].floatValue] forKey:KEY_serviceAccidentSettlement_amount];
+    [self.serviceAccidentSettlement setValue:[self.settlementDriverBox getText] forKey:KEY_serviceAccidentSettlement_riskDriver];
+    [self.serviceAccidentSettlement setValue:[self.settlementAreaBox getText] forKey:KEY_serviceAccidentSettlement_riskSpot];
+    [self.serviceAccidentSettlement setValue:[self.settlementClaimCommentTV getText] forKey:KEY_serviceAccidentSettlement_accidentComment];
+    [self.serviceAccidentSettlement setValue:[self.settlementLossCommentTV getText] forKey:KEY_serviceAccidentSettlement_vehicleComment];
+    [self.serviceAccidentSettlement setValue:[self.settlementCertificateBox getSelectedItem] forKey:KEY_serviceAccidentSettlement_prove];
+    [self.serviceAccidentSettlement setValue:[self.settlementCategoryBox getSelectedItem] forKey:KEY_serviceAccidentSettlement_type];
+    [self.serviceAccidentSettlement setValue:[self.settlementIsDirectBox getSelectedItem] forKey:KEY_serviceAccidentSettlement_direct];
+    [self.serviceAccidentSettlement setValue:[self.settlementClaimsCompanyBox getText] forKey:KEY_serviceAccidentSettlement_claimsCompany];
+    [self.serviceAccidentSettlement setValue:[self.settlementLossAssessorBox getText] forKey:KEY_serviceAccidentSettlement_settlingPerson];
 }
 
 //保存上一次未完成的信息
@@ -662,6 +981,10 @@
         }
         [self.curSevice setValue:solution forKey:@"solution"];
         [self.curSevice setValue:_commentTV.text forKey:@"comment"];
+        
+        [self saveServiceAccidentSettlement];
+        [self.curSevice setValue:self.serviceAccidentSettlement forKey:@"serviceAccidentSettlement"];
+        
         [[DataBase defaultDataBase] openSeviceList];
         
         if([[DataBase defaultDataBase] getSeviceInfoBy:[[self.curVehicle objectForKey:@"id"] integerValue]]){
@@ -684,6 +1007,7 @@
 {
     [self clearVehicleData];
     [self clearSeviceData];
+    [self hideAccidentSettlement];
 }
 
 //清除客户和车辆信息
@@ -695,7 +1019,7 @@
     _nameBox.text = @"";
     _cellphoneBox.text = @"";
     _vinBox.text = @"";
-    _customTypeBox.text = @"";
+//    _customTypeBox.text = @"";
     _modelBox.text = @"";
     _typeBox.text = @"";
 }
@@ -704,17 +1028,37 @@
 -(void)clearSeviceData
 {
     self.curSevice = nil;
+    self.serviceAccidentSettlement = nil;
     [_repairetypeBtn setTitle:@"维修类别" forState:UIControlStateNormal];
     _milesTF.text = @"";
     _oilgaugeBox.text = @"";
     _descriptionBox.text = @"";
     _reasonBox.text = @"";
     _commentTV.text = @"";
+    
+    
     [_imageArray removeAllObjects];
     for (UIView * view in self.imagesDetailView.subviews) {
         [view removeFromSuperview];
     }
+    
+    [_settlementAmoutBox setText:@""];
+    [_settlementDriverBox setText:@""];
+    [_settlementAreaBox setText:@""];
+    [_settlementRiskTimeBox setText:@""];
+    [_settlementDateTimeBox setText:@""];
+    [_settlementCertificateBox setText:@""];
+    [_settlementCategoryBox setText:@""];
+    [_settlementClaimsCompanyBox setText:@""];
+    [_settlementIsDirectBox setText:@""];
+    [_settlementLossAssessorBox setText:@""];
+    [_settlementLossCommentTV setText:@""];
+    [_settlementClaimCommentTV setText:@""];
+    [_addAccidentImageBtn setImage:[UIImage imageNamed:@"accidentImage"] forState:UIControlStateNormal];
+    [_addLossImageBtn setImage:[UIImage imageNamed:@"lossImage"] forState:UIControlStateNormal];
+    
 }
+
 
 
 //(快速搜索，扫描，修改车牌号)传进来的用户信息，需要查询是否老用户（这里与查询的用户详情信息字段不同，分开处理）
@@ -768,7 +1112,7 @@
     _cellphoneBox.text = cellphone;
     _typeBox.text = vehicleTypeStr;
     _modelBox.text = vehicleSpec;
-    _customTypeBox.text = @"";
+//    _customTypeBox.text = @"";
     
     if (vehicleSpec) {
         [self.curVehicle setValue:[NSArray arrayWithObject:vehicleSpec] forKey:@"vehicleSpec"];
@@ -778,7 +1122,15 @@
     [self.curVehicle setValue:[data objectForKey:@"driverLicenceFirstUrls"] forKey:@"driverLicenceFirstUrls"];
     [self.curVehicle setValue:[data objectForKey:@"engineNumber"] forKey:@"engineNumber"];
     [self.curVehicle setValue:[data objectForKey:@"purchasingDate"] forKey:@"purchasingDate"];
-//    [parm setValue:[data objectForKey:@"engineNumber"] forKey:@"address"];
+//    [parm setValue:[data objectForKey:@"address"] forKey:@"address"];
+    [self.curCustomer setValue:[data objectForKey:@"address"] forKey:@"address"];
+    
+    for (NSDictionary * dic in _customerTypes) {
+        if ([[dic objectForKey:@"message"] isEqualToString:@"顾客"]) {
+//            _customTypeBox.text = [dic objectForKey:@"message"];
+            [self.curCustomer setValue:dic forKey:@"type"];
+        }
+    }
    
     [self queryInfoWithPlateNo:plateNo];
 }
@@ -816,7 +1168,7 @@
     NSDictionary * owner = [data objectForKey:@"owner"];
     if (owner) {
         _curCustomer = [NSMutableDictionary dictionaryWithDictionary:owner];
-        _customTypeBox.text = [[owner objectForKey:@"type"] objectForKey:@"message"];
+//        _customTypeBox.text = [[owner objectForKey:@"type"] objectForKey:@"message"];
         _nameBox.text = [owner objectForKey:@"name"];
         _cellphoneBox.text = [owner objectForKey:@"cellphone"];
         NSString * wechatUnionId = [owner objectForKey:@"wechatUnionId"];
@@ -873,6 +1225,15 @@
         if (serviceCategory) {
             [_repairetypeBtn setTitle:[serviceCategory objectForKey:@"name"] forState:UIControlStateNormal];
             [self.curSevice setValue:[NSMutableDictionary dictionaryWithDictionary:serviceCategory] forKey:@"serviceCategory"];
+            
+            if ([[serviceCategory objectForKey:@"name"] isEqualToString:@"事故维修"]) {
+                self.serviceAccidentSettlement = [NSMutableDictionary dictionaryWithDictionary:[sevice objectForKey:@"serviceAccidentSettlement"]];
+                [self showAccidentSettlement];
+                [self setupServiceAccidentSettlementInfo:self.serviceAccidentSettlement];
+                
+            }else {
+                [self hideAccidentSettlement];
+            }
         }
         
         NSArray * serviceVehicleImgUrls = [sevice objectForKey:@"serviceVehicleImgUrls"];
@@ -880,7 +1241,82 @@
             [self.curSevice setValue:[NSMutableArray arrayWithArray:serviceVehicleImgUrls] forKey:@"serviceVehicleImgUrls"];
             [self layoutImageView];
         }
+
     }
+}
+
+-(void)setupServiceAccidentSettlementInfo:(NSMutableDictionary *)serviceAccidentSettlement
+{
+    NSNumber * amount = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_amount];
+    if(amount){
+        [self.settlementAmoutBox setText:[NSString stringWithFormat:@"%@",amount]];
+    }
+    
+    NSString * riskDriver = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_riskDriver];
+    if(riskDriver){
+        [self.settlementDriverBox setText:riskDriver];
+    }
+    
+    NSString * riskSpot = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_riskSpot];
+    if(riskSpot){
+        [self.settlementAreaBox setText:riskSpot];
+    }
+    
+    NSString * riskDatetime = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_riskDatetime];
+    if(riskDatetime){
+        [self.settlementRiskTimeBox setText:riskDatetime];
+    }
+    
+    NSString * settlingDatetime = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_settlingDatetime];
+    if(settlingDatetime){
+        [self.settlementDateTimeBox setText:settlingDatetime];
+    }
+    
+    NSDictionary * prove = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_prove];
+    if(prove){
+        [self.settlementCertificateBox setText:[prove objectForKey:@"message"]];
+    }
+    
+    NSDictionary * type = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_type];
+    if(type){
+        [self.settlementCategoryBox setText:[type objectForKey:@"message"]];
+    }
+    
+    NSString * claimsCompany = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_claimsCompany];
+    if(claimsCompany){
+        [self.settlementClaimsCompanyBox setText:claimsCompany];
+    }
+    
+    NSDictionary * direct = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_direct];
+    if(direct){
+        [self.settlementIsDirectBox setText:[direct objectForKey:@"message"]];
+    }
+    
+    NSString * settlingPerson = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_settlingPerson];
+    if(settlingPerson){
+        [self.settlementLossAssessorBox setText:settlingPerson];
+    }
+    
+    NSString * accidentComment = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_accidentComment];
+    if(accidentComment){
+        [self.settlementClaimCommentTV setText:accidentComment];
+    }
+    
+    NSString * vehicleComment = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_vehicleComment];
+    if(vehicleComment){
+        [self.settlementLossCommentTV setText:vehicleComment];
+    }
+    
+    NSString * accidentBookImgUrl = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_accidentImage];
+    if(accidentBookImgUrl){
+        [self.addAccidentImageBtn sd_setImageWithURL:[NSURL URLWithString:accidentBookImgUrl] forState:UIControlStateNormal];
+    }
+    
+    NSString * damageOrderImgUrl = [serviceAccidentSettlement objectForKey:KEY_serviceAccidentSettlement_damageImage];
+    if(damageOrderImgUrl){
+        [self.addLossImageBtn sd_setImageWithURL:[NSURL URLWithString:damageOrderImgUrl] forState:UIControlStateNormal];
+    }
+    
 }
 
 
@@ -992,7 +1428,6 @@
     popCtrl.view.tag = TAG_POPVIEW_VEHICLETYPE;
     [self.navCtrl addChildViewController:popCtrl];
     [self.navCtrl.view addSubview:popCtrl.view];
-  
 }
 
 -(void)selectCustomType
@@ -1098,6 +1533,154 @@
 
         
     }];
+}
+
+
+-(void)selectCertificate
+{
+    [self resign];
+    [[NetWorkAPIManager defaultManager]  hint:@"ACSTPRV" success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary * dic = responseObject;
+        NSArray * array = [dic objectForKey:@"data"];
+        [self.breakdownDescriptions removeAllObjects];
+        [self.breakdownDescriptions addObjectsFromArray:array];
+        NSMutableArray * popStrings = [NSMutableArray array];
+        for (NSDictionary * ainfo in array) {
+            NSString * str = [ainfo objectForKey:@"name"];
+            [popStrings addObject:str];
+        }
+        PopViewController * popCtrl = [[PopViewController alloc] initWithTitle:@"定责证明 " Data:popStrings];
+        popCtrl.delegate = self;
+        popCtrl.view.tag = TAG_POPVIEW_Certificate;
+        [self.navCtrl addChildViewController:popCtrl];
+        [self.navCtrl.view addSubview:popCtrl.view];
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+    }];
+}
+
+
+-(void)selectCompany
+{
+    [self resign];
+    [[NetWorkAPIManager defaultManager]  hint:@"SASCMC" success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary * dic = responseObject;
+        NSArray * array = [dic objectForKey:@"data"];
+        [self.breakdownDescriptions removeAllObjects];
+        [self.breakdownDescriptions addObjectsFromArray:array];
+        NSMutableArray * popStrings = [NSMutableArray array];
+        for (NSDictionary * ainfo in array) {
+            NSString * str = [ainfo objectForKey:@"name"];
+            [popStrings addObject:str];
+        }
+        PopViewController * popCtrl = [[PopViewController alloc] initWithTitle:@"责任类别" Data:popStrings];
+        popCtrl.delegate = self;
+        popCtrl.view.tag = TAG_POPVIEW_Company;
+        [self.navCtrl addChildViewController:popCtrl];
+        [self.navCtrl.view addSubview:popCtrl.view];
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+    }];
+}
+
+-(void)selectCategory
+{
+    [self resign];
+    [[NetWorkAPIManager defaultManager]  hint:@"ACSTDTTP" success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary * dic = responseObject;
+        NSArray * array = [dic objectForKey:@"data"];
+        [self.breakdownDescriptions removeAllObjects];
+        [self.breakdownDescriptions addObjectsFromArray:array];
+        NSMutableArray * popStrings = [NSMutableArray array];
+        for (NSDictionary * ainfo in array) {
+            NSString * str = [ainfo objectForKey:@"name"];
+            [popStrings addObject:str];
+        }
+        PopViewController * popCtrl = [[PopViewController alloc] initWithTitle:@"责任类别" Data:popStrings];
+        popCtrl.delegate = self;
+        popCtrl.view.tag = TAG_POPVIEW_Category;
+        [self.navCtrl addChildViewController:popCtrl];
+        [self.navCtrl.view addSubview:popCtrl.view];
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+    }];
+    
+}
+
+-(void)selectLossAssessor
+{
+    [self resign];
+    [[NetWorkAPIManager defaultManager]  hint:@"SASSTP" success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary * dic = responseObject;
+        NSArray * array = [dic objectForKey:@"data"];
+        [self.breakdownDescriptions removeAllObjects];
+        [self.breakdownDescriptions addObjectsFromArray:array];
+        NSMutableArray * popStrings = [NSMutableArray array];
+        for (NSDictionary * ainfo in array) {
+            NSString * str = [ainfo objectForKey:@"name"];
+            [popStrings addObject:str];
+        }
+        PopViewController * popCtrl = [[PopViewController alloc] initWithTitle:@"定损员" Data:popStrings];
+        popCtrl.delegate = self;
+        popCtrl.view.tag = TAG_POPVIEW_LossAssessor;
+        [self.navCtrl addChildViewController:popCtrl];
+        [self.navCtrl.view addSubview:popCtrl.view];
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+    }];
+    
+}
+
+-(void)selectIsDirect
+{
+    [self resign];
+    [[NetWorkAPIManager defaultManager]  hint:@"FLAG" success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary * dic = responseObject;
+        NSArray * array = [dic objectForKey:@"data"];
+        [self.breakdownDescriptions removeAllObjects];
+        [self.breakdownDescriptions addObjectsFromArray:array];
+        NSMutableArray * popStrings = [NSMutableArray array];
+        for (NSDictionary * ainfo in array) {
+            NSString * str = [ainfo objectForKey:@"name"];
+            [popStrings addObject:str];
+        }
+        PopViewController * popCtrl = [[PopViewController alloc] initWithTitle:@"是否直赔" Data:popStrings];
+        popCtrl.delegate = self;
+        popCtrl.view.tag = TAG_POPVIEW_IsDirect;
+        [self.navCtrl addChildViewController:popCtrl];
+        [self.navCtrl.view addSubview:popCtrl.view];
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+    }];
+    
+}
+
+-(void)selectRiskTime
+{
+    TimePickerViewController * timePick = [[TimePickerViewController alloc] init];
+    timePick.modalPresentationStyle = UIModalPresentationFullScreen;
+    timePick.delegate = self;
+    timePick.tag = TAG_TimePicker_RiskTime;
+    [timePick showIn:self.navCtrl];
+    
+//    UIDatePicker * datePicker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 300, self.frame.size.width, 300)];
+//    datePicker.backgroundColor = [UIColor whiteColor];
+//    datePicker.datePickerMode = UIDatePickerModeDateAndTime;
+//    [self addSubview:datePicker];
+}
+
+-(void)selectSettleTime
+{
+    TimePickerViewController * timePick = [[TimePickerViewController alloc] init];
+    timePick.modalPresentationStyle = UIModalPresentationFullScreen;
+    timePick.delegate = self;
+    timePick.tag = TAG_TimePicker_SettleTime;
+    [timePick showIn:self.navCtrl];
     
 }
 
@@ -1107,9 +1690,10 @@
     if (!array) {
         array = [NSArray array];
     }
-    MaintanceAndAccessoryViewController * maintanceCtrl = [[MaintanceAndAccessoryViewController alloc] initWithData:array goods:[NSArray array]];
+    MaintanceAndAccessoryViewController * maintanceCtrl = [[MaintanceAndAccessoryViewController alloc] initWithData:array goods:[NSArray array] vehicleType:[self.curVehicle objectForKey:@"type"]];
     maintanceCtrl.delegate = self;
     [self.navCtrl pushViewController:maintanceCtrl animated:YES];
+    
 }
 
 -(void)resizeContentView
@@ -1240,21 +1824,50 @@
             imgurls = [NSArray array];
         }
         NSMutableArray * newUrls = [NSMutableArray arrayWithArray:imgurls];
-        
-        //带水印图片路径
-        NSString * path = [NSString stringWithFormat:@"%@/%@?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,size_36,text_MjAyMS0wOC0wNiAxMTowOTowNQ==,color_FFFFFF,shadow_50,t_100,g_se,x_10,y_10",[self.ossSignature objectForKey:@"host"],key];
-        
-        [newUrls addObject:[NSDictionary dictionaryWithObject:path forKey:@"vehicleImgUrl"]];
-        [weakself.curSevice setValue:newUrls forKey:@"serviceVehicleImgUrls"];
+          
+        switch (weakself.addImageVideoType) {
+            case AddImageVideoToPickUP:
+            {
+                //带水印图片路径
+                NSString * timeStr = [[CommonTool getNowDateStr] stringByReplacingOccurrencesOfString:@"T" withString:@" "];
+                NSData *data = [timeStr dataUsingEncoding:NSUTF8StringEncoding];
+                NSString * base64TimeStr = [data base64EncodedStringWithOptions:0];
+                NSString * path = [NSString stringWithFormat:@"%@/%@?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,size_36,text_%@,color_FFFFFF,shadow_50,t_100,g_se,x_10,y_10",[self.ossSignature objectForKey:@"host"],key,base64TimeStr];
+                
+                [newUrls addObject:[NSDictionary dictionaryWithObject:path forKey:@"vehicleImgUrl"]];
+                [weakself.curSevice setValue:newUrls forKey:@"serviceVehicleImgUrls"];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakself layoutImageView];
-        });
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [weakself layoutImageView];
+                });
+            }
+                break;
+            case AddImageToAccidentBtn:
+            {
+                NSString * path = [NSString stringWithFormat:@"%@/%@",[self.ossSignature objectForKey:@"host"],key];
+                [self.addAccidentImageBtn sd_setImageWithURL:[NSURL URLWithString:path] forState:UIControlStateNormal];
+                [self.serviceAccidentSettlement setValue:path forKey:@"accidentBookImgUrl"];
+            }
+                break;
+            case AddImageToLossBtn:
+            {
+                NSString * path = [NSString stringWithFormat:@"%@/%@",[self.ossSignature objectForKey:@"host"],key];
+                [self.addLossImageBtn sd_setImageWithURL:[NSURL URLWithString:path] forState:UIControlStateNormal];
+                [self.serviceAccidentSettlement setValue:path forKey:@"damageOrderImgUrl"];
+            }
+                break;
+                
+            default:
+                break;
+        }
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
            
     }];
     
 }
+
+
 
 -(void)uploadVideo:(NSURL *)url
 {
@@ -1270,11 +1883,12 @@
         Byte *buffer = (Byte*)malloc(rep.size);
         NSUInteger buffered = [rep getBytes:buffer fromOffset:0.0 length:rep.size error:nil];
         videoData = [NSData dataWithBytesNoCopy:buffer length:buffered freeWhenDone:YES];
-        [videoData writeToFile:videoPath atomically:NO]; //you can remove this if only nsdata needed
+//        [videoData writeToFile:videoPath atomically:NO]; //you can remove this if only nsdata needed
 
         NSString * key = [NSString stringWithFormat:@"%@/%@.mov",[self.ossSignature objectForKey:@"dir"],[CommonTool getNowTimestamp]];
         NSMutableDictionary * parm = [NSMutableDictionary dictionaryWithDictionary:self.ossSignature];
         [parm setValue:key forKey:@"key"];
+
         [[NetWorkAPIManager defaultManager] uploadVideo:videoData signature:parm success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject)
         {
             //成功无返回数据
@@ -1282,8 +1896,10 @@
             if (!imgurls) {
                 imgurls = [NSArray array];
             }
+            
             NSMutableArray * newUrls = [NSMutableArray arrayWithArray:imgurls];
             NSString * path = [NSString stringWithFormat:@"%@/%@",[self.ossSignature objectForKey:@"host"],key];
+            NSLog(@"vehicleImgUrl: %@",path);
             [newUrls addObject:[NSDictionary dictionaryWithObject:path forKey:@"vehicleImgUrl"]];
             [weakself.curSevice setValue:newUrls forKey:@"serviceVehicleImgUrls"];
 
@@ -1367,13 +1983,13 @@
         return NO;
     }
     if (![self.modelBox getText]|| [self.modelBox getText].length <= 0){
-        [self showHint:@"请选择车型"];
+        [self showHint:@"请选择车品牌"];
         return NO;
     }
-    if (![self.customTypeBox getText]|| [self.customTypeBox getText].length <= 0){
-        [self showHint:@"请选择客户类型"];
-        return NO;
-    }
+//    if (![self.customTypeBox getText]|| [self.customTypeBox getText].length <= 0){
+//        [self showHint:@"请选择客户类型"];
+//        return NO;
+//    }
 
     
     return YES;
@@ -1550,13 +2166,16 @@
 {
     __weak PickupView * weakself = self;
 
+    //savedata
     [self.curSevice setValue:self.curVehicle forKey:@"vehicle"];
     NSDictionary * owner = [self.curVehicle objectForKey:@"owner"];
     if (owner) {
         NSDictionary * customer = [NSDictionary dictionaryWithObject:[owner objectForKey:@"id"] forKey:@"id"];
         [self.curSevice setValue:customer forKey:@"customer"];
     }
-//    NSDictionary * advisor = [NSDictionary dictionaryWithObject:[NSNumber numberWithInteger:[NetWorkAPIManager defaultManager].userID] forKey:@"id"];
+    if (!advisor){
+        advisor = [NSDictionary dictionaryWithObject:[NSNumber numberWithInteger:[NetWorkAPIManager defaultManager].userID] forKey:@"id"];
+    }
     [self.curSevice setValue:advisor forKey:@"advisor"];
     [self.curSevice setValue:@"" forKey:@"settlementMethod"];//必需
     NSInteger mileage = [_milesTF.text integerValue];
@@ -1574,13 +2193,35 @@
     [self.curSevice setValue:_commentTV.text forKey:@"comment"];
     [self.curSevice setValue:[NSDictionary dictionaryWithObject:@"IM" forKey:@"code"] forKey:@"nextStep"];
     [self.curSevice setValue:[self currentDateStr] forKey:@"enterDatetime"];
+    [self.curSevice setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
+    
+    //settlement
+    [self saveServiceAccidentSettlement];
+    [self.curSevice setValue:self.serviceAccidentSettlement forKey:@"serviceAccidentSettlement"];
+    
     [[NetWorkAPIManager defaultManager] createService:self.curSevice success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [[DataBase defaultDataBase] deleteASevice:[[weakself.curVehicle objectForKey:@"id"] integerValue]];
-        weakself.curVehicle = nil;
-        weakself.curCustomer = nil;
-        weakself.curSevice = nil;
-        
-        success(task,responseObject);
+
+        NSDictionary * resp = responseObject;
+//        NSMutableDictionary * asevice = [NSMutableDictionary dictionaryWithDictionary:info];
+        [[NetWorkAPIManager defaultManager] queryService:[[[resp objectForKey:@"data"] firstObject] integerValue] success:^(NSURLSessionDataTask *task, id  _Nullable responseObject) {
+            NSDictionary * dic = responseObject;
+//            NSMutableDictionary * parm = [NSMutableDictionary dictionaryWithObject:[dic objectForKey:@"data"] forKey:@"data"];
+            NSMutableDictionary * seviceDic = [NSMutableDictionary dictionaryWithDictionary:[[dic objectForKey:@"data"] firstObject]];
+            if(![seviceDic objectForKey:@"serviceAccidentSettlement"]){
+                [seviceDic setValue:[NSDictionary dictionary] forKey:@"serviceAccidentSettlement"];
+            }else {
+                [self.serviceAccidentSettlement setValue:[[seviceDic objectForKey:@"serviceAccidentSettlement"] objectForKey:@"id"] forKey:@"id"];
+                [seviceDic setValue:self.serviceAccidentSettlement forKey:@"serviceAccidentSettlement"];
+            }
+            [seviceDic setValue:[NSNumber numberWithBool:TRUE] forKey:@"ignoreCheck"];
+            
+            [seviceDic setValue:[NSDictionary dictionary] forKey:@"qualityInspector"];
+            [seviceDic setValue:[NSDictionary dictionaryWithObject:@"IM" forKey:@"code"] forKey:@"nextStep"];
+
+            [[NetWorkAPIManager defaultManager] updateService:seviceDic success:success failure:failure];
+            
+        } failure:failure];
         
     } failure:failure];
 }
@@ -1591,6 +2232,23 @@
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {
     self.firstResponderView = textView;
+    if (textView.tag == TAG_ClaimComment) {
+        self.firstResponderView = _settlementClaimCommentTV;
+        [_settlementClaimCommentTV beginEditing];
+    }else if (textView.tag == TAG_LossComment) {
+        self.firstResponderView = _settlementLossCommentTV;
+        [_settlementLossCommentTV beginEditing];
+    }
+    return YES;
+}
+
+-(BOOL)textViewShouldEndEditing:(UITextView *)textView
+{
+    if (textView.tag == TAG_ClaimComment) {
+        [_settlementClaimCommentTV endEditing];
+    }else if (textView.tag == TAG_LossComment) {
+        [_settlementLossCommentTV endEditing];
+    }
     return YES;
 }
 
@@ -1645,8 +2303,18 @@
         case TAG_POPVIEW_SEVICECATEGORY:
             {
                 NSDictionary * dic = [_seviceCategorys objectAtIndex:index];
+                
+                NSString * lastTypeCode = [[[self.curSevice objectForKey:@"serviceCategory"] objectForKey:@"type"] objectForKey:@"code"];
+                NSString * curTypeCode = [[dic objectForKey:@"type"] objectForKey:@"code"];
+        
                 [_repairetypeBtn setTitle:[dic objectForKey:@"name"] forState:UIControlStateNormal];
                 [self.curSevice setValue:dic forKey:@"serviceCategory"];
+                
+                if ([lastTypeCode isEqualToString:@"ACCIDENT"] && (![curTypeCode isEqualToString:@"ACCIDENT"])) {
+                    [self hideAccidentSettlement];
+                }else if ((![lastTypeCode isEqualToString:@"ACCIDENT"]) && [curTypeCode isEqualToString:@"ACCIDENT"]) {
+                    [self showAccidentSettlement];
+                }
                 
             }
             break;
@@ -1655,14 +2323,6 @@
                 NSDictionary * dic = [_vehicleTypes objectAtIndex:index];
                 _typeBox.text = [dic objectForKey:@"name"];
                 [self.curVehicle setValue:dic forKey:@"type"];
-            }
-            break;
-        case TAG_POPVIEW_CUSTOMERTYPE:
-            {
-                NSDictionary * dic = [_customerTypes objectAtIndex:index];
-                _customTypeBox.text = [dic objectForKey:@"message"];
-                [self.curCustomer setValue:dic forKey:@"type"];
-
             }
             break;
         case TAG_POPVIEW_OIL:
@@ -1686,6 +2346,52 @@
             break;
         case TAG_POPVIEW_IMAGEVIDEO:
         {
+            self.addImageVideoType = AddImageVideoToPickUP;
+            if (index == 0) {
+                [self takePhotos];
+            }else if (index == 1){
+                [self selectPhotos];
+            }
+        }
+            break;
+        case TAG_POPVIEW_Certificate:
+        {
+            [self.serviceAccidentSettlement setValue:[_settlementCertificateBox getSelectedItem] forKey:@"prove"];
+        }
+            break;
+        case TAG_POPVIEW_Category:
+        {
+            [self.serviceAccidentSettlement setValue:[_settlementCategoryBox getSelectedItem] forKey:@"type"];
+        }
+            break;
+        case TAG_POPVIEW_Company:
+        {
+            [self.serviceAccidentSettlement setValue:[[_settlementClaimsCompanyBox getSelectedItem] objectForKey:@"name"] forKey:@"claimsCompany"];
+        }
+            break;
+        case TAG_POPVIEW_IsDirect:
+        {
+            [self.serviceAccidentSettlement setValue:[_settlementIsDirectBox getSelectedItem] forKey:@"direct"];
+        }
+            break;
+        case TAG_POPVIEW_LossAssessor:
+        {
+            [self.serviceAccidentSettlement setValue:[[_settlementIsDirectBox getSelectedItem] objectForKey:@"name"] forKey:@"settlingPerson"];
+        }
+            break;
+        case TAG_POPVIEW_AddAccidentImage:
+        {
+            self.addImageVideoType = AddImageToAccidentBtn;
+            if (index == 0) {
+                [self takePhotos];
+            }else if (index == 1){
+                [self selectPhotos];
+            }
+        }
+            break;
+        case TAG_POPVIEW_AddLossImage:
+        {
+            self.addImageVideoType = AddImageToLossBtn;
             if (index == 0) {
                 [self takePhotos];
             }else if (index == 1){
@@ -1700,6 +2406,27 @@
     
 }
 
+//-(void)imageViewController:(ImageViewController *)imageCtrl deleteImage:(NSString *)urlstr
+//{
+//    switch (imageCtrl.tag) {
+//        case TAG_ImageCtrl_AccidentImage:
+//        {
+//            [self.serviceAccidentSettlement removeObjectForKey:KEY_serviceAccidentSettlement_accidentImage];
+//            [self.addAccidentImageBtn setImage:[UIImage imageNamed:@"accidentImage"] forState:UIControlStateNormal];
+//        }
+//            break;
+//        case TAG_ImageCtrl_LossImage:
+//        {
+//            [self.serviceAccidentSettlement removeObjectForKey:KEY_serviceAccidentSettlement_damageImage];
+//            [self.addLossImageBtn setImage:[UIImage imageNamed:@"lossImage"] forState:UIControlStateNormal];
+//        }
+//            break;
+//
+//        default:
+//            break;
+//    }
+//}
+
 -(void)tabview:(CommonTabView *)tabview indexChanged:(NSInteger )index
 {
     switch (index) {
@@ -1707,6 +2434,7 @@
         {
             _vehicleView.hidden = NO;
             _imagesView.hidden = YES;
+            _accidentView.hidden = YES;
             //扩展页面重新布局
             CGRect frame = self.extandDetailView.frame;
             self.extandDetailView.frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, _vehicleView.frame.size.height);
@@ -1716,9 +2444,20 @@
         {
             _vehicleView.hidden = YES;
             _imagesView.hidden = NO;
+            _accidentView.hidden = YES;
             //扩展页面重新布局
             CGRect frame = self.extandDetailView.frame;
             self.extandDetailView.frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, _imagesView.frame.size.height);
+        }
+            break;
+        case 2:
+        {
+            _vehicleView.hidden = YES;
+            _imagesView.hidden = YES;
+            _accidentView.hidden = NO;
+            //扩展页面重新布局
+            CGRect frame = self.extandDetailView.frame;
+            self.extandDetailView.frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, _accidentView.frame.size.height);
         }
             break;
             
@@ -1726,7 +2465,6 @@
             break;
     }
     [self resizeContentView];
-    
 }
 
 
@@ -1865,6 +2603,34 @@
     return curType;
 }
 
+#pragma TimePickerDelegate
 
+-(void)timePicker:(TimePickerViewController*)picker selectTime:(NSString*)timeString
+{
+    if (picker.tag == TAG_TimePicker_RiskTime) {
+        [self.settlementRiskTimeBox setText:timeString];
+        NSString * string = [timeString stringByReplacingOccurrencesOfString:@" " withString:@"T"];
+        [self.serviceAccidentSettlement setValue:string forKey:@"riskDatetime"];
+    }else if (picker.tag == TAG_TimePicker_SettleTime){
+        [self.settlementDateTimeBox setText:timeString];
+        NSString * string = [timeString stringByReplacingOccurrencesOfString:@" " withString:@"T"];
+        [self.serviceAccidentSettlement setValue:string forKey:@"settlingDatetime"];
+    }
+}
+
+
+-(void)OpenOrPutawayStatusChanged:(BOOL)isopen
+{
+    CGRect frame = _accidentView.frame;
+    if (isopen) {
+        _accidentView.frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, 960);
+    }else {
+        _accidentView.frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, 365);
+    }
+    _openOrPutawayBtnView.frame = CGRectMake(0, _accidentView.frame.size.height-77, _accidentView.frame.size.width, 77);
+    
+    _extandDetailView.frame = CGRectMake(_extandDetailView.frame.origin.x, _extandDetailView.frame.origin.y, _extandDetailView.frame.size.width,_accidentView.frame.size.height);
+    [self resizeContentView];
+}
 
 @end

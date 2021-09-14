@@ -13,7 +13,7 @@
 #import "PopViewController.h"
 #import "CommonTextView.h"
 
-@interface ApplyViewController ()<PopViewDelagate>
+@interface ApplyViewController ()<PopViewDelagate,UITextFieldDelegate,UITextViewDelegate>
 @property (strong, nonatomic) IBOutlet ComplexBox *nameBox;
 @property (strong, nonatomic) IBOutlet ComplexBox *cellphoneBox;
 @property (strong, nonatomic) IBOutlet ComplexBox *companyNameBox;
@@ -22,6 +22,7 @@
 @property (strong, nonatomic) IBOutlet CommonTextView *commentBox;
 @property (strong, nonatomic) NSArray * turnOverArray;
 @property (strong, nonatomic) UIView * focusView;
+@property(nonatomic,readwrite,strong)UIView * firstResponderView;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *topConst;
 @property (assign, nonatomic) CGFloat orgTopConst;
 @end
@@ -54,6 +55,13 @@
     [self.companyNameBox setMode:ComplexBoxEdit];
     [self.areaBox setMode:ComplexBoxEdit];
     [self.turnOverBox setMode:ComplexBoxSelect];
+    
+    self.nameBox.delegate = self;
+    self.cellphoneBox.delegate = self;
+    self.companyNameBox.delegate = self;
+    self.areaBox.delegate = self;
+    self.turnOverBox.delegate = self;
+    self.commentBox.delegate = self;
     
     self.orgTopConst = self.topConst.constant;
     
@@ -175,18 +183,56 @@
     CGRect KeyboardRect = [[userInfo objectForKey:@"UIKeyboardFrameEndUserInfoKey"]CGRectValue];
 
     UIWindow * window=[[[UIApplication sharedApplication] delegate] window];
-    CGRect viewRect = [self.view convertRect: self.commentBox.frame toView:window];
+    CGRect viewRect = [self.view convertRect: self.firstResponderView.frame toView:window];
     CGFloat offset =  (viewRect.origin.y + viewRect.size.height) - KeyboardRect.origin.y + 12;
 
     if (offset > 0) {
-        self.topConst.constant = self.orgTopConst - offset;
+        
+//        self.topConst.constant = self.orgTopConst - offset;
+        [UIView animateWithDuration:1 animations:^{
+            self.topConst.constant = self.orgTopConst - offset;
+            [self.view layoutIfNeeded];
+        }];
     }
 }
 
 -(void)keyboardWillHide:(NSNotification*)notification
 {
-    self.topConst.constant = self.orgTopConst;
-  
+    if (_firstResponderView) {
+        [UIView animateWithDuration:1 animations:^{
+            self.topConst.constant = self.orgTopConst;
+            [self.view layoutIfNeeded];
+        }];
+    }
+    _firstResponderView = nil;
+}
+
+#pragma delegate
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+    self.firstResponderView = textField;
+    return YES;
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];//收起键盘
+    return  YES;
+}
+
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
+{
+    self.firstResponderView = self.commentBox;
+    [self.commentBox beginEditing];
+    return YES;
+}
+
+
+- (BOOL)textViewShouldEndEditing:(UITextView *)textView
+{
+    [self.commentBox endEditing];
+    return YES;
 }
 
 @end

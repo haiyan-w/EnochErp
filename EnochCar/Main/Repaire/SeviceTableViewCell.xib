@@ -203,6 +203,7 @@
                 <outlet property="enterDateLab" destination="uma-gH-6oD" id="8NO-uy-qB6"/>
                 <outlet property="extraBtn" destination="Pqf-2e-nPp" id="vCC-nF-T7k"/>
                 <outlet property="nameAndCellphoneLab" destination="TNC-Ve-q5v" id="f3p-vM-eUw"/>
+                <outlet property="nameLabWithConstraint" destination="jwc-Ug-npp" id="n7y-7u-0ji"/>
                 <outlet property="plateNoLab" destination="IwA-St-zRw" id="gYo-Dt-6pT"/>
                 <outlet property="serialNoLab" destination="urJ-41-tHT" id="gv2-jy-KtW"/>
                 <outlet property="serviceStateLab" destination="cIj-ai-U7k" id="Nry-Kl-qws"/>

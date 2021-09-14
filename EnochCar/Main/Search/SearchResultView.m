@@ -12,6 +12,7 @@
 #import "NotFoundView.h"
 #import "LoadingView.h"
 #import "NetWorkOffView.h"
+#import "CommonTool.h"
 
 typedef enum
 {
@@ -193,8 +194,12 @@ typedef enum
         });
 
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        
+//        NSString * info = [error.userInfo objectForKey:@"body"];
+//        NSDictionary * dic = [CommonTool dictionaryWithJsonString:info];
+//        NSDictionary * msgDic = [[dic objectForKey:@"errors"] firstObject];
+//        NSString * message = [msgDic objectForKey:@"message"];
         dispatch_async(dispatch_get_main_queue(), ^{
+            [weakself.netOffView setMessage:[CommonTool getErrorMessage:error]];
             [weakself.resultView addSubview:self.netOffView];
         });
         
@@ -222,7 +227,7 @@ typedef enum
 -(NetWorkOffView*)netOffView
 {
     if (!_netOffView) {
-        _netOffView = [[NetWorkOffView alloc] initWithFrame:CGRectMake(0, 0, self.resultView.frame.size.width, self.resultView.frame.size.height) refreshBlock:^{
+        _netOffView = [[NetWorkOffView alloc] initWithFrame:CGRectMake(0, 0, self.resultView.frame.size.width, self.resultView.frame.size.height) errorMessage:@"请检查网络连接" refreshBlock:^{
             [self searchData:self.curSearchText];
         }];
     }

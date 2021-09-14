@@ -12,6 +12,7 @@
 #import "NotFoundView.h"
 #import "LoadingView.h"
 #import "NetWorkOffView.h"
+#import "CommonTool.h"
 
 
 #define TABLEVIEW_IDENTIFIER_CELL  @"SeviceTableViewCellIdentifier"
@@ -157,7 +158,7 @@ typedef enum{
 -(NetWorkOffView*)netOffView
 {
     if (!_netOffView) {
-        _netOffView = [[NetWorkOffView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height) refreshBlock:^{
+        _netOffView = [[NetWorkOffView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height) errorMessage:@"请检查网络连接" refreshBlock:^{
             [self refreshTableView];
         }];
     }
@@ -289,9 +290,14 @@ typedef enum{
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         weakself.isLoading = NO;
+//        NSString * info = [error.userInfo objectForKey:@"body"];
+//        NSDictionary * dic = [CommonTool dictionaryWithJsonString:info];
+//        NSDictionary * msgDic = [[dic objectForKey:@"errors"] firstObject];
+//        NSString * message = [msgDic objectForKey:@"message"];
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakself.tableview.refreshControl endRefreshing];
             [weakself.tableview reloadData];
+            [weakself.netOffView setMessage:[CommonTool getErrorMessage:error]];
             [weakself addSubview:self.netOffView];
         });
         

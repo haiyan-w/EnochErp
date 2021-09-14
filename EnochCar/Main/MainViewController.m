@@ -20,7 +20,7 @@
 #import "UIView+Hint.h"
 #import "LoadingView.h"
 #import "NotFoundView.h"
-#import "NetWorkOffView.h"
+//#import "NetWorkOffView.h"
 
 #define TAG_TF_SEARCH  1111
 #define TAG_TF_ADVISOR  1112
@@ -357,10 +357,7 @@
 - (void)createService
 {
     __weak MainViewController * weakself = self;
-    if (!self.curAdvisor) {
-        [self.view showHint:@"请选择服务顾问"];
-        return;
-    }
+
     [_pickupView createServiceWith:self.curAdvisor success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         dispatch_async(dispatch_get_main_queue(), ^{
             UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"开单完成，是否进行维修"
@@ -537,11 +534,8 @@
 
 -(void)textChange:(NSNotification*)notice
 {
-
     UITextField * textfield = notice.object;
-    
-    [self.searchResultView searchData:textfield.text];
-    
+    [self.searchResultView searchData:textfield.text];    
 }
 
 #pragma textField delegate

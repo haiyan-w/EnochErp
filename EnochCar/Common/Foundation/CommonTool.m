@@ -318,6 +318,9 @@
     NSDictionary * dic = [CommonTool dictionaryWithJsonString:info];
     NSDictionary * msgDic = [[dic objectForKey:@"errors"] firstObject];
     NSString * message = [msgDic objectForKey:@"message"];
+    if ((!message)||(message.length == 0)) {
+        message = @"网络异常";
+    }
     return message;
 }
 
@@ -328,6 +331,5 @@
     NSDictionary * msgDic = [[dic objectForKey:@"errors"] firstObject];
     return msgDic;
 }
-
 
 @end

@@ -48,12 +48,14 @@
 		32320710268DBE8A002F8B15 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3232070F268DBE8A002F8B15 /* MapKit.framework */; };
 		323A072A26AFD58E009487BF /* BlackLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 323A072926AFD58E009487BF /* BlackLabel.m */; };
 		323A08FB2698446700F652C8 /* ComplexBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 323A08FA2698446700F652C8 /* ComplexBox.m */; };
+		323BB3FE26DCDB3C0088A3FE /* TimePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BB3FD26DCDB3C0088A3FE /* TimePickerView.m */; };
 		323EF6822682D3A0009A4DDF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 323EF6812682D3A0009A4DDF /* Security.framework */; };
 		323EF6842682D3AC009A4DDF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 323EF6832682D3AC009A4DDF /* CoreGraphics.framework */; };
 		323EF6862682D3BB009A4DDF /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 323EF6852682D3BB009A4DDF /* WebKit.framework */; };
 		32439E9F26AE5E8500FF5724 /* CommonTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32439E9E26AE5E8500FF5724 /* CommonTextView.m */; };
 		32439EA226AE7EB800FF5724 /* BannerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32439EA126AE7EB800FF5724 /* BannerView.m */; };
 		3245C80026B3C71500DAADD0 /* BannerItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 3245C7FF26B3C71500DAADD0 /* BannerItem.m */; };
+		3259E76326D601C900DED453 /* UIImage+FixOritention.m in Sources */ = {isa = PBXBuildFile; fileRef = 3259E76226D601C900DED453 /* UIImage+FixOritention.m */; };
 		325B175B264BB25300853800 /* MaintanceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 325B175A264BB25300853800 /* MaintanceViewController.m */; };
 		325D51CE265214E000DDF87C /* EditPlateNoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 325D51CD265214E000DDF87C /* EditPlateNoViewController.m */; };
 		325DCA122655EF7B00F12FC4 /* RepaireView.m in Sources */ = {isa = PBXBuildFile; fileRef = 325DCA112655EF7B00F12FC4 /* RepaireView.m */; };
@@ -62,6 +64,8 @@
 		325FBDD0265371DD00DE948C /* CommonTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 325FBDCF265371DD00DE948C /* CommonTextField.m */; };
 		325FBDDA2653CF9D00DE948C /* GoodsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 325FBDD82653CF9D00DE948C /* GoodsTableViewCell.m */; };
 		325FBDDB2653CF9D00DE948C /* GoodsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 325FBDD92653CF9D00DE948C /* GoodsTableViewCell.xib */; };
+		3269874926DF160A00EBA9EF /* ImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3269874826DF160A00EBA9EF /* ImageViewController.m */; };
+		3269874C26DF5D2100EBA9EF /* OpenOrPutawayButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3269874B26DF5D2100EBA9EF /* OpenOrPutawayButton.m */; };
 		327C09CB26647C8F0098C70D /* MaintanceAndAccessoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 327C09CA26647C8F0098C70D /* MaintanceAndAccessoryViewController.m */; };
 		327C09CE26647EB40098C70D /* AddMaintanceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 327C09CD26647EB40098C70D /* AddMaintanceViewController.m */; };
 		327C09D12664C94C0098C70D /* CreateAccessoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 327C09D02664C94C0098C70D /* CreateAccessoryViewController.m */; };
@@ -184,6 +188,8 @@
 		323A072926AFD58E009487BF /* BlackLabel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BlackLabel.m; sourceTree = "<group>"; };
 		323A08F92698446700F652C8 /* ComplexBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ComplexBox.h; sourceTree = "<group>"; };
 		323A08FA2698446700F652C8 /* ComplexBox.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ComplexBox.m; sourceTree = "<group>"; };
+		323BB3FC26DCDB3C0088A3FE /* TimePickerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TimePickerView.h; sourceTree = "<group>"; };
+		323BB3FD26DCDB3C0088A3FE /* TimePickerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TimePickerView.m; sourceTree = "<group>"; };
 		323EF6812682D3A0009A4DDF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		323EF6832682D3AC009A4DDF /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		323EF6852682D3BB009A4DDF /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -193,6 +199,8 @@
 		32439EA126AE7EB800FF5724 /* BannerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BannerView.m; sourceTree = "<group>"; };
 		3245C7FE26B3C71500DAADD0 /* BannerItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BannerItem.h; sourceTree = "<group>"; };
 		3245C7FF26B3C71500DAADD0 /* BannerItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BannerItem.m; sourceTree = "<group>"; };
+		3259E76126D601C900DED453 /* UIImage+FixOritention.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+FixOritention.h"; sourceTree = "<group>"; };
+		3259E76226D601C900DED453 /* UIImage+FixOritention.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImage+FixOritention.m"; sourceTree = "<group>"; };
 		325B1759264BB25300853800 /* MaintanceViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaintanceViewController.h; sourceTree = "<group>"; };
 		325B175A264BB25300853800 /* MaintanceViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MaintanceViewController.m; sourceTree = "<group>"; };
 		325D51CC265214E000DDF87C /* EditPlateNoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditPlateNoViewController.h; sourceTree = "<group>"; };
@@ -208,6 +216,10 @@
 		325FBDD72653CF9D00DE948C /* GoodsTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GoodsTableViewCell.h; sourceTree = "<group>"; };
 		325FBDD82653CF9D00DE948C /* GoodsTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GoodsTableViewCell.m; sourceTree = "<group>"; };
 		325FBDD92653CF9D00DE948C /* GoodsTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GoodsTableViewCell.xib; sourceTree = "<group>"; };
+		3269874726DF160A00EBA9EF /* ImageViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageViewController.h; sourceTree = "<group>"; };
+		3269874826DF160A00EBA9EF /* ImageViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImageViewController.m; sourceTree = "<group>"; };
+		3269874A26DF5D2100EBA9EF /* OpenOrPutawayButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenOrPutawayButton.h; sourceTree = "<group>"; };
+		3269874B26DF5D2100EBA9EF /* OpenOrPutawayButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OpenOrPutawayButton.m; sourceTree = "<group>"; };
 		327C09C926647C8F0098C70D /* MaintanceAndAccessoryViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaintanceAndAccessoryViewController.h; sourceTree = "<group>"; };
 		327C09CA26647C8F0098C70D /* MaintanceAndAccessoryViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MaintanceAndAccessoryViewController.m; sourceTree = "<group>"; };
 		327C09CC26647EB40098C70D /* AddMaintanceViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AddMaintanceViewController.h; sourceTree = "<group>"; };
@@ -389,6 +401,8 @@
 			children = (
 				328F01582654F8DD0056C3E3 /* PickupView.h */,
 				328F01592654F8DD0056C3E3 /* PickupView.m */,
+				323BB3FC26DCDB3C0088A3FE /* TimePickerView.h */,
+				323BB3FD26DCDB3C0088A3FE /* TimePickerView.m */,
 				327C09C926647C8F0098C70D /* MaintanceAndAccessoryViewController.h */,
 				327C09CA26647C8F0098C70D /* MaintanceAndAccessoryViewController.m */,
 				3281937026662947004D6C2B /* MaintanceTableViewCell.h */,
@@ -420,6 +434,8 @@
 				31E8E45E2666B33300C0E417 /* VehicleBrandTableViewCell.xib */,
 				327DF9EB26686E6B00B66C92 /* QRCodeViewController.h */,
 				327DF9EC26686E6B00B66C92 /* QRCodeViewController.m */,
+				3269874A26DF5D2100EBA9EF /* OpenOrPutawayButton.h */,
+				3269874B26DF5D2100EBA9EF /* OpenOrPutawayButton.m */,
 			);
 			path = PickUp;
 			sourceTree = "<group>";
@@ -464,6 +480,10 @@
 				3223637A26B159880000D014 /* BaseNavigationViewController.m */,
 				3229370526B8E61B00A76F25 /* BaseTabBarController.h */,
 				3229370626B8E61B00A76F25 /* BaseTabBarController.m */,
+				3259E76126D601C900DED453 /* UIImage+FixOritention.h */,
+				3259E76226D601C900DED453 /* UIImage+FixOritention.m */,
+				3269874726DF160A00EBA9EF /* ImageViewController.h */,
+				3269874826DF160A00EBA9EF /* ImageViewController.m */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -752,6 +772,7 @@
 				328F015D265507C00056C3E3 /* CommonTabView.m in Sources */,
 				327E0CA1265B8C5A00F957F6 /* ModifyPwdViewController.m in Sources */,
 				3229370726B8E61B00A76F25 /* BaseTabBarController.m in Sources */,
+				3259E76326D601C900DED453 /* UIImage+FixOritention.m in Sources */,
 				327EFECB264CCEEC00DE108D /* CommonViewController.m in Sources */,
 				315F52EF264548280002E22D /* LoginViewController.m in Sources */,
 				327C09CB26647C8F0098C70D /* MaintanceAndAccessoryViewController.m in Sources */,
@@ -759,6 +780,7 @@
 				317637052650A4A600C2891E /* CommonTool.m in Sources */,
 				32A5F9FA264947F50092C35B /* NetWorkAPIManager.m in Sources */,
 				3223637826B157C40000D014 /* BaseViewController.m in Sources */,
+				3269874C26DF5D2100EBA9EF /* OpenOrPutawayButton.m in Sources */,
 				3215F27226CBBD3600E5D6B1 /* IndexView.m in Sources */,
 				3281937326662947004D6C2B /* MaintanceTableViewCell.m in Sources */,
 				325DCA122655EF7B00F12FC4 /* RepaireView.m in Sources */,
@@ -789,6 +811,7 @@
 				328213CD265CD23200DE6534 /* CommonJSONResponseSerializer.m in Sources */,
 				327C09D72664F3B60098C70D /* GoodsSearchTableViewCell.m in Sources */,
 				317754C92645022E00E4398C /* ViewController.m in Sources */,
+				3269874926DF160A00EBA9EF /* ImageViewController.m in Sources */,
 				327C09D12664C94C0098C70D /* CreateAccessoryViewController.m in Sources */,
 				315EF9ED26456F890023C25F /* MainViewController.m in Sources */,
 				3160510C266CCA00008D0B68 /* AVPlayerView.m in Sources */,
@@ -803,6 +826,7 @@
 				3160510A266CCA00008D0B68 /* ProgressView.m in Sources */,
 				317754C32645022E00E4398C /* AppDelegate.m in Sources */,
 				323A072A26AFD58E009487BF /* BlackLabel.m in Sources */,
+				323BB3FE26DCDB3C0088A3FE /* TimePickerView.m in Sources */,
 				325FBDDA2653CF9D00DE948C /* GoodsTableViewCell.m in Sources */,
 				323A08FB2698446700F652C8 /* ComplexBox.m in Sources */,
 				3285D7DE2679DB8200880240 /* SettingTableViewCell.m in Sources */,
@@ -963,7 +987,7 @@
 				CODE_SIGN_ENTITLEMENTS = EnochCar/EnochCar.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development: ziqiang liu (KNQHCZ26N8)";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ZT8Q33MX8B;
 				INFOPLIST_FILE = EnochCar/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -978,7 +1002,7 @@
 					"$(PROJECT_DIR)/EnochCar/wechatSDK",
 					"$(PROJECT_DIR)/EnochCar/WechatUM",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1016,7 +1040,7 @@
 				CODE_SIGN_ENTITLEMENTS = EnochCar/EnochCarRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ZT8Q33MX8B;
 				INFOPLIST_FILE = EnochCar/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -1031,7 +1055,7 @@
 					"$(PROJECT_DIR)/EnochCar/wechatSDK",
 					"$(PROJECT_DIR)/EnochCar/WechatUM",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

@@ -36,6 +36,8 @@
 
 @property(nonatomic, readwrite, strong) NSMutableDictionary * curSevice;
 
+@property(nonatomic, readwrite, strong) NSDictionary * vehicleType;
+
 
 @end
 
@@ -65,14 +67,14 @@
                 [_goodsArray addObject:[NSMutableDictionary dictionaryWithDictionary:agood]];
             }            
         }
-        
+        _vehicleType = [[self.curSevice objectForKey:@"vehicle"] objectForKey:@"type"];
         [self viewInit];
         [self dataInit];
     }
     return self;
 }
 
--(instancetype)initWithData:(NSArray*)maintenances goods:(NSArray *)goodsArray
+-(instancetype)initWithData:(NSArray*)maintenances goods:(NSArray *)goodsArray vehicleType:(NSDictionary *)type
 {
     self = [super init];
     if (self) {
@@ -90,6 +92,8 @@
         for (NSDictionary * agood in goodsArray) {
             [_goodsArray addObject:[NSMutableDictionary dictionaryWithDictionary:agood]];
         }
+        
+        _vehicleType = type;
         
         [self viewInit];
         
@@ -339,35 +343,56 @@
         maintance = [NSMutableDictionary dictionaryWithObject:@"" forKey:@"name"];
     }
     
-    NSDictionary * valuationMethod = [maintance objectForKey:@"valuationMethod"];
+    NSDictionary * valuationMethod = [NSDictionary dictionaryWithObject:[NetWorkAPIManager defaultManager].chargeMethodCode forKey:@"code"];
     NSNumber * laborHour = [maintance objectForKey:@"laborHour"];
     NSNumber * unitPrice = [maintance objectForKey:@"unitPrice"];
+    NSNumber * fixedPrice = [maintance objectForKey:@"fixedPrice"];
     
-    if (!valuationMethod) {
-        valuationMethod = [NSDictionary dictionaryWithObject:[NetWorkAPIManager defaultManager].chargeMethodCode forKey:@"code"];
+    if (self.vehicleType) {
+        NSInteger typeID = [[self.vehicleType objectForKey:@"id"] integerValue];
+        for (NSDictionary * standard in [maintance objectForKey:@"chargingStandards"]) {
+            if (typeID == [[[standard objectForKey:@"vehicleType"] objectForKey:@"id"] integerValue]) {
+                unitPrice = [standard objectForKey:@"unitPrice"];
+                fixedPrice = [standard objectForKey:@"fixedPrice"];
+            }
+        }
     }
+
     if (!laborHour) {
         laborHour = [NSNumber numberWithFloat:1];
     }
     if (!unitPrice) {
         unitPrice = [NSNumber numberWithFloat:[NetWorkAPIManager defaultManager].price.floatValue];
     }
+    if (!fixedPrice) {
+        fixedPrice = [NSNumber numberWithFloat:0];
+    }
     
     
     NSMutableDictionary * amaintance = [NSMutableDictionary dictionaryWithObject:maintance forKey:@"maintenance"];
     [amaintance setValue:valuationMethod forKey:@"valuationMethod"];
-    [amaintance setValue:laborHour forKey:@"laborHour"];
+    
     if ([[NetWorkAPIManager defaultManager].chargeMethodCode isEqualToString:@"H"]) {
         //工时计价
+        [amaintance setValue:laborHour forKey:@"laborHour"];
         [amaintance setValue:unitPrice forKey:@"price"];
     }else if ([[NetWorkAPIManager defaultManager].chargeMethodCode isEqualToString:@"P"]){
         //金额计价
-        [amaintance setValue:[NSNumber numberWithFloat:0] forKey:@"price"];
+        [amaintance setValue:[NSNumber numberWithFloat:1] forKey:@"laborHour"];
+        [amaintance setValue:fixedPrice forKey:@"price"];
     }
 
     [amaintance setValue:[maintance objectForKey:@"name"] forKey:@"name"];
     [amaintance setValue:[NSMutableArray array] forKey:@"maintenanceGoods"];
+    
+    //默认设置
     [amaintance setValue:[NSDictionary dictionaryWithObject:@"N" forKey:@"code"] forKey:@"inflatedFlag"];
+    [amaintance setValue:[NSDictionary dictionaryWithObject:@"Y" forKey:@"code"] forKey:@"print"];
+//    [amaintance setValue:[NSNumber numberWithBool:FALSE] forKey:@"special"];
+//    [amaintance setValue:[NSNumber numberWithFloat:1] forKey:@"discountRate"];
+//    [amaintance setValue:[NSNumber numberWithFloat:100] forKey:@"discountRatePercent"];
+//    [amaintance setValue:[NSNumber numberWithFloat:1] forKey:@"discountCoupon"];
+
 
     [self.curMaintances addObject:amaintance];
     [self.maintenanceTableView reloadData];
@@ -474,7 +499,12 @@
         NSArray * array = [resp objectForKey:@"data"];
 
         [weakself.workingteams removeAllObjects];
-        [weakself.workingteams addObjectsFromArray:array];
+        for (NSDictionary * team in array) {
+            if ([[[team objectForKey:@"status"] objectForKey:@"code"] isEqualToString:@"A"]) {
+                [weakself.workingteams addObject:team];
+            }
+        }
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakself.maintenanceTableView reloadData];
         });
